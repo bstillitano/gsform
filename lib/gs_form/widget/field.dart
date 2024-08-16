@@ -50,7 +50,7 @@ import 'fields/multi_image_picker_field.dart';
 
 // ignore: must_be_immutable
 class GSField extends StatefulWidget {
-  late GSFieldModel model;
+  GSFieldModel? model;
   Widget? child;
   GSFormStyle? formStyle;
 
@@ -78,6 +78,7 @@ class GSField extends StatefulWidget {
     String? hint,
     Widget? iconWidget,
     Color? iconColor,
+    bool? enableReadOnly,
   }) : super(key: key) {
     model = GSQRScannerModel(
       type: GSFieldTypeEnum.qrScanner,
@@ -91,6 +92,7 @@ class GSField extends StatefulWidget {
       weight: weight,
       hint: hint,
       iconWidget: iconWidget,
+      enableReadOnly: enableReadOnly,
     );
   }
 
@@ -136,7 +138,7 @@ class GSField extends StatefulWidget {
       weight: weight,
       hint: hint,
       iconWidget: iconWidget,
-      defaultValue: defaultImagePathValue,
+      value: defaultImagePathValue,
       maximumSizePerImageInBytes: maximumSizePerImageInBytes,
       onErrorSizeItem: onErrorSizeItem,
     );
@@ -202,29 +204,28 @@ class GSField extends StatefulWidget {
     bool? required,
     bool? showTitle,
     GSFieldStatusEnum? status,
-    String? value,
     int? weight,
     RegExp? validateRegEx,
+    SpinnerDataModel? value,
     ValueChanged<SpinnerDataModel?>? onChange,
     required List<SpinnerDataModel> items,
     String? hint,
   }) : super(key: key) {
     model = GSSpinnerModel(
-      type: GSFieldTypeEnum.spinner,
-      tag: tag,
-      showTitle: showTitle ?? true,
-      title: title,
-      errorMessage: errorMessage,
-      helpMessage: helpMessage,
-      prefixWidget: prefixWidget,
-      required: required,
-      status: status,
-      value: value,
-      weight: weight,
-      items: items,
-      hint: hint,
-      onChange: onChange,
-    );
+        type: GSFieldTypeEnum.spinner,
+        tag: tag,
+        showTitle: showTitle ?? true,
+        title: title,
+        errorMessage: errorMessage,
+        helpMessage: helpMessage,
+        prefixWidget: prefixWidget,
+        required: required,
+        status: status,
+        weight: weight,
+        items: items,
+        hint: hint,
+        onChange: onChange,
+        value: value);
   }
 
   GSField.radioGroup(
@@ -237,7 +238,6 @@ class GSField extends StatefulWidget {
       bool? required,
       bool? showTitle,
       GSFieldStatusEnum? status,
-      String? value,
       int? weight,
       RegExp? validateRegEx,
       String? hint,
@@ -264,7 +264,6 @@ class GSField extends StatefulWidget {
         helpMessage: helpMessage,
         required: required,
         status: status,
-        value: value,
         weight: weight,
         showScrollBar: showScrollBar,
         scrollBarColor: scrollBarColor,
@@ -295,7 +294,6 @@ class GSField extends StatefulWidget {
     Widget? prefixWidget,
     bool? showTitle,
     GSFieldStatusEnum? status,
-    String? value,
     int? weight,
     RegExp? validateRegEx,
     String? hint,
@@ -323,7 +321,6 @@ class GSField extends StatefulWidget {
         helpMessage: helpMessage,
         required: isRequired,
         status: status,
-        value: value,
         weight: weight,
         showScrollBar: showScrollBar,
         scrollBarColor: scrollBarColor,
@@ -360,11 +357,16 @@ class GSField extends StatefulWidget {
       int? minLine,
       int? maxLine,
       String? hint,
-      Function(String?)? onChanged})
+      bool? readOnly,
+      Function(String?)? onChanged,
+      FocusNode? focusNode,
+      FocusNode? nextFocusNode})
       : super(key: key) {
     model = GSTextModel(
       type: GSFieldTypeEnum.text,
       tag: tag,
+      focusNode: focusNode,
+      nextFocusNode: nextFocusNode,
       showTitle: showTitle ?? true,
       title: title,
       errorMessage: errorMessage,
@@ -377,29 +379,31 @@ class GSField extends StatefulWidget {
       weight: weight,
       maxLength: maxLength,
       hint: hint,
+      enableReadOnly: readOnly,
     );
     onChange = onChanged;
   }
 
-  GSField.password(
-      {Key? key,
-      required String tag,
-      String? title,
-      String? errorMessage,
-      String? helpMessage,
-      Widget? prefixWidget,
-      bool? required,
-      bool? showTitle,
-      GSFieldStatusEnum? status,
-      String? value,
-      int? weight,
-      RegExp? validateReg,
-      int? maxLength,
-      int? minLine,
-      int? maxLine,
-      bool? isEnable,
-      String? hint})
-      : super(key: key) {
+  GSField.password({
+    Key? key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    Widget? prefixWidget,
+    bool? required,
+    bool? showTitle,
+    GSFieldStatusEnum? status,
+    String? value,
+    int? weight,
+    RegExp? validateReg,
+    int? maxLength,
+    int? minLine,
+    int? maxLine,
+    bool? isEnable,
+    String? hint,
+    bool? readOnly,
+  }) : super(key: key) {
     model = GSPasswordModel(
       type: GSFieldTypeEnum.password,
       showTitle: showTitle ?? true,
@@ -414,48 +418,52 @@ class GSField extends StatefulWidget {
       weight: weight,
       hint: hint,
       maxLength: maxLength,
+      enableReadOnly: readOnly,
     );
   }
 
-  GSField.textPlain(
-      {Key? key,
-      required String tag,
-      String? title,
-      String? errorMessage,
-      String? helpMessage,
-      Widget? prefixWidget,
-      Widget? postfixWidget,
-      bool? required,
-      bool? showTitle,
-      GSFieldStatusEnum? status,
-      String? value,
-      int? weight,
-      RegExp? validateRegEx,
-      int? maxLength,
-      int? minLine,
-      int? maxLine,
-      String? hint,
-      bool? showCounter,
-      Function(String?)? onChanged})
-      : super(key: key) {
+  GSField.textPlain({
+    Key? key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    Widget? prefixWidget,
+    Widget? postfixWidget,
+    bool? required,
+    bool? showTitle,
+    GSFieldStatusEnum? status,
+    String? value,
+    int? weight,
+    RegExp? validateRegEx,
+    int? maxLength,
+    int? minLine,
+    int? maxLine,
+    String? hint,
+    bool? showCounter,
+    bool? readOnly,
+    Function(String?)? onChanged,
+  }) : super(key: key) {
     model = GSTextPlainModel(
-        type: GSFieldTypeEnum.textPlain,
-        tag: tag,
-        title: title,
-        showTitle: showTitle ?? true,
-        errorMessage: errorMessage,
-        helpMessage: helpMessage,
-        prefixWidget: prefixWidget,
-        postfixWidget: postfixWidget,
-        required: required,
-        status: status,
-        value: value,
-        weight: weight,
-        hint: hint,
-        maxLine: maxLine,
-        minLine: minLine,
-        maxLength: maxLength,
-        showCounter: showCounter);
+      type: GSFieldTypeEnum.textPlain,
+      tag: tag,
+      title: title,
+      showTitle: showTitle ?? true,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      prefixWidget: prefixWidget,
+      postfixWidget: postfixWidget,
+      required: required,
+      status: status,
+      value: value,
+      weight: weight,
+      hint: hint,
+      maxLine: maxLine,
+      minLine: minLine,
+      maxLength: maxLength,
+      showCounter: showCounter,
+      enableReadOnly: readOnly,
+    );
     onChange = onChanged;
   }
 
@@ -475,6 +483,7 @@ class GSField extends StatefulWidget {
     RegExp? validateRegEx,
     int? maxLength,
     String? hint,
+    bool? readOnly,
   }) : super(key: key) {
     model = GSMobileModel(
       type: GSFieldTypeEnum.mobile,
@@ -491,6 +500,7 @@ class GSField extends StatefulWidget {
       weight: weight,
       maxLength: maxLength,
       hint: hint,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -511,6 +521,7 @@ class GSField extends StatefulWidget {
     bool? showTitle,
     bool? showCounter,
     String? hint,
+    bool? readOnly,
   }) : super(key: key) {
     model = GSNumberModel(
       type: GSFieldTypeEnum.number,
@@ -528,33 +539,33 @@ class GSField extends StatefulWidget {
       maxLength: maxLength,
       hint: hint,
       showCounter: showCounter,
+      enableReadOnly: readOnly,
     );
   }
 
-  GSField.datePicker(
-      {Key? key,
-      required String tag,
-      required GSCalendarType calendarType,
-      String? title,
-      String? errorMessage,
-      String? helpMessage,
-      Widget? prefixWidget,
-      Widget? postfixWidget,
-      bool? required,
-      bool? showTitle,
-      GSFieldStatusEnum? status,
-      String? value,
-      int? weight,
-      RegExp? validateReg,
-      int? maxLength,
-      String? hint,
-      GSDateFormatType? displayDateType,
-      bool? isPastAvailable,
-      GSDate? initialDate,
-      GSDate? availableFrom,
-      GSDate? availableTo,
-      Function(DateTime?)? onChanged})
-      : super(key: key) {
+  GSField.datePicker({
+    Key? key,
+    required String tag,
+    required GSCalendarType calendarType,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    Widget? prefixWidget,
+    Widget? postfixWidget,
+    bool? required,
+    bool? showTitle,
+    GSFieldStatusEnum? status,
+    int? weight,
+    RegExp? validateReg,
+    int? maxLength,
+    String? hint,
+    GSDateFormatType? displayDateType,
+    bool? isPastAvailable,
+    GSDate? initialDate,
+    GSDate? availableFrom,
+    GSDate? availableTo,
+    Function(DateTime?)? onChanged,
+  }) : super(key: key) {
     model = GSDatePickerModel(
         type: GSFieldTypeEnum.date,
         tag: tag,
@@ -567,7 +578,6 @@ class GSField extends StatefulWidget {
         postfixWidget: postfixWidget,
         required: required,
         status: status,
-        value: value,
         weight: weight,
         hint: hint,
         isPastAvailable: isPastAvailable,
@@ -592,7 +602,6 @@ class GSField extends StatefulWidget {
     bool? required,
     bool? showTitle,
     GSFieldStatusEnum? status,
-    String? value,
     int? weight,
     RegExp? validateReg,
     int? maxLength,
@@ -617,7 +626,6 @@ class GSField extends StatefulWidget {
         showTitle: showTitle ?? true,
         required: required,
         status: status,
-        value: value,
         weight: weight,
         hint: hint,
         isPastAvailable: isPastAvailable,
@@ -629,27 +637,25 @@ class GSField extends StatefulWidget {
         calendarType: calendarType);
   }
 
-  GSField.time(
-      {Key? key,
-      required String tag,
-      String? title,
-      String? errorMessage,
-      String? helpMessage,
-      Widget? prefixWidget,
-      Widget? postfixWidget,
-      bool? showTitle,
-      bool? required,
-      GSFieldStatusEnum? status,
-      String? value,
-      int? weight,
-      RegExp? validateReg,
-      int? maxLength,
-      String? hint,
-      TimeOfDay? initialTime,
-      Function(TimeOfDay?)? onChanged
-      // TimePickerType ? timePickerType ,
-      })
-      : super(key: key) {
+  GSField.time({
+    Key? key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    Widget? prefixWidget,
+    Widget? postfixWidget,
+    bool? showTitle,
+    bool? required,
+    GSFieldStatusEnum? status,
+    int? weight,
+    RegExp? validateReg,
+    int? maxLength,
+    String? hint,
+    TimeOfDay? initialTime,
+    Function(TimeOfDay?)? onChanged,
+    // TimePickerType ? timePickerType ,
+  }) : super(key: key) {
     model = GSTimePickerModel(
       type: GSFieldTypeEnum.time,
       tag: tag,
@@ -661,7 +667,6 @@ class GSField extends StatefulWidget {
       postfixWidget: postfixWidget,
       required: required,
       status: status,
-      value: value,
       weight: weight,
       hint: hint,
       initialTime: initialTime,
@@ -686,6 +691,7 @@ class GSField extends StatefulWidget {
     RegExp? validateRegEx,
     int? maxLength,
     String? hint,
+    bool? readOnly,
   }) : super(key: key) {
     model = GSEmailModel(
       type: GSFieldTypeEnum.email,
@@ -702,6 +708,7 @@ class GSField extends StatefulWidget {
       weight: weight,
       maxLength: maxLength,
       hint: hint,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -721,6 +728,7 @@ class GSField extends StatefulWidget {
     RegExp? validateRegEx,
     int? maxLength,
     String? hint,
+    bool? readOnly,
   }) : super(key: key) {
     model = GSPriceModel(
       type: GSFieldTypeEnum.price,
@@ -740,6 +748,7 @@ class GSField extends StatefulWidget {
       weight: weight,
       maxLength: maxLength,
       hint: hint,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -802,14 +811,14 @@ class _GSFieldState extends State<GSField> {
     widget.formStyle = widget.formStyle ?? GSFormStyle();
     widget.onUpdate = () {
       if (mounted) {
-        if (widget.model.status != GSFieldStatusEnum.disabled) {
+        if (widget.model?.status != GSFieldStatusEnum.disabled) {
           setState(() {});
         }
       }
     };
 
     return AbsorbPointer(
-      absorbing: widget.model.status == GSFieldStatusEnum.disabled,
+      absorbing: widget.model?.status == GSFieldStatusEnum.disabled,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -817,15 +826,15 @@ class _GSFieldState extends State<GSField> {
             child: Column(
               children: [
                 Visibility(
-                  visible: widget.model.showTitle!,
+                  visible: widget.model?.showTitle ?? false,
                   child: Column(
                     children: [
                       Row(
                         children: [
-                          Text(widget.model.title ?? "", style: widget.formStyle!.titleTextStyle),
+                          Text(widget.model?.title ?? "", style: widget.formStyle!.titleTextStyle),
                           const SizedBox(width: 4.0),
                           Opacity(
-                            opacity: widget.model.required ?? false ? 1 : 0,
+                            opacity: widget.model?.required ?? false ? 1 : 0,
                             child: Text(
                               widget.formStyle!.requiredText,
                               style: const TextStyle(color: GSFormColors.red, fontSize: 10),
@@ -838,16 +847,16 @@ class _GSFieldState extends State<GSField> {
                   ),
                 ),
                 Container(
-                  decoration: GSFormUtils.getFieldDecoration(widget.formStyle!, widget.model.status),
+                  decoration: GSFormUtils.getFieldDecoration(widget.formStyle!, widget.model?.status),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Visibility(
-                        visible: widget.model.prefixWidget == null ? false : true,
+                        visible: widget.model?.prefixWidget == null ? false : true,
                         child: Row(
                           children: [
                             const SizedBox(width: 8.0),
-                            widget.model.prefixWidget ?? const SizedBox(width: 0),
+                            widget.model?.prefixWidget ?? const SizedBox(width: 0),
                             const SizedBox(width: 8.0),
                             Container(
                               height: 30.0,
@@ -857,13 +866,15 @@ class _GSFieldState extends State<GSField> {
                           ],
                         ),
                       ),
-                      Expanded(child: widget.child!),
+                      Expanded(
+                        child: widget.child!,
+                      ),
                       Visibility(
-                        visible: widget.model.postfixWidget == null ? false : true,
+                        visible: widget.model?.postfixWidget == null ? false : true,
                         child: Row(
                           children: [
                             const SizedBox(width: 10.0),
-                            widget.model.postfixWidget ?? const SizedBox(width: 0),
+                            widget.model?.postfixWidget ?? const SizedBox(width: 0),
                             const SizedBox(width: 10.0),
                           ],
                         ),
@@ -873,24 +884,20 @@ class _GSFieldState extends State<GSField> {
                 ),
                 const SizedBox(height: 4.0),
                 Opacity(
-                  opacity: (widget.model.status == GSFieldStatusEnum.error && widget.model.errorMessage != null) || widget.model.helpMessage != null
-                      ? 1
-                      : 0,
+                  opacity: (widget.model?.status == GSFieldStatusEnum.error && widget.model?.errorMessage != null) || widget.model?.helpMessage != null ? 1 : 0,
                   child: Row(
                     children: [
                       SizedBox(
                         width: 8.0,
                         height: 8.0,
                         child: SvgPicture.asset(
-                          widget.model.status == GSFieldStatusEnum.error
-                              ? 'packages/gsform/assets/ic_alret.svg'
-                              : 'packages/gsform/assets/ic_info.svg',
+                          widget.model?.status == GSFieldStatusEnum.error ? 'packages/gsform/assets/ic_alret.svg' : 'packages/gsform/assets/ic_info.svg',
                         ),
                       ),
                       const SizedBox(width: 1.0),
                       Text(
-                        widget.model.status == GSFieldStatusEnum.error ? widget.model.errorMessage ?? '' : widget.model.helpMessage ?? '',
-                        style: widget.model.status == GSFieldStatusEnum.error ? widget.formStyle!.errorTextStyle : widget.formStyle!.helpTextStyle,
+                        widget.model?.status == GSFieldStatusEnum.error ? widget.model?.errorMessage ?? '' : widget.model?.helpMessage ?? '',
+                        style: widget.model?.status == GSFieldStatusEnum.error ? widget.formStyle!.errorTextStyle : widget.formStyle!.helpTextStyle,
                       ),
                     ],
                   ),
@@ -905,7 +912,7 @@ class _GSFieldState extends State<GSField> {
   }
 
   _fillChild() {
-    switch (widget.model.type) {
+    switch (widget.model?.type) {
       case GSFieldTypeEnum.text:
         widget.child = GSTextField(widget.model as GSTextModel, widget.formStyle!, widget.onChange);
         break;
