@@ -1,9 +1,8 @@
 name: gsform
 description: GSForm helps to creating forms in Flutter by removing the boilerplate needed to build a form, validate fields, react to changes and collect final user input.
 version: 0.3.7
-homepage: https://github.com/golrangsystem/gsform.git
-
-
+homepage: https://github.com/bstillitano/gsform.git
+publish_to: none
 
 environment:
   sdk: '>=2.17.5 <4.0.0'
@@ -15,7 +14,11 @@ dependencies:
   figma_squircle: ^0.5.3
   persian_datetime_picker: ^2.6.0
   intl: ^0.19.0
-  qr_code_scanner: ^1.0.1
+  qr_code_scanner:
+    git:
+      url: https://github.com/samnbd/qr_code_scanner
+      ref: master
+      version: ^1.0.0
   image_cropper: ^5.0.1
   image_picker: ^0.8.9
   flutter_svg: ^2.0.5
