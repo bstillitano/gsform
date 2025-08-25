@@ -5,7 +5,6 @@ import 'package:gsform/gs_form/core/field_callback.dart';
 import 'package:gsform/gs_form/core/form_style.dart';
 import 'package:gsform/gs_form/model/data_model/time_data_model.dart';
 import 'package:gsform/gs_form/model/fields_model/time_picker_model.dart';
-import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class GSTimePickerField extends StatefulWidget implements GSFieldCallBack {
   late GSTimePickerModel model;
@@ -92,32 +91,10 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
           ],
         ),
         onTap: () {
-          if (widget.model.timePickerType == TimePickerType.persian) {
-            _openPersianTimePicker();
-          } else {
-            _openTimePicker();
-          }
+          _openTimePicker();
         },
       ),
     );
-  }
-
-  _openPersianTimePicker() async {
-    var picked = await showPersianTimePicker(
-      context: widget.context,
-      initialTime: widget.selectedTime ?? TimeOfDay.now(),
-      initialEntryMode: PTimePickerEntryMode.dial,
-      useRootNavigator: false,
-    );
-    if (picked != null) {
-      widget.selectedTime = picked;
-      widget.model.initialTime = picked;
-      widget.isTimeSelected = true;
-      _displayTime(picked);
-      update();
-    } else {
-      widget.isTimeSelected = false;
-    }
   }
 
   _openTimePicker() async {
