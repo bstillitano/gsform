@@ -56,6 +56,7 @@ class GSField extends StatefulWidget {
 
   VoidCallback? onUpdate;
   Function(String?)? onChange;
+  Function(List<String>?)? onArrayChange;
   Function(DateTime?)? onDateChange;
   Function(TimeOfDay?)? onTimeChange;
 
@@ -168,6 +169,7 @@ class GSField extends StatefulWidget {
     double? maximumSizePerImageInKB,
     double? maximumImageCount,
     VoidCallback? onErrorSizeItem,
+    Function(List<String>?)? onChanged
   }) : super(key: key) {
     model = GSMultiImagePickerModel(
       type: GSFieldTypeEnum.multiImagePicker,
@@ -192,6 +194,7 @@ class GSField extends StatefulWidget {
       maximumSizePerImageInKB: maximumSizePerImageInKB,
       onErrorSizeItem: onErrorSizeItem,
     );
+    onArrayChange = onChanged;
   }
 
   GSField.spinner({
@@ -962,7 +965,7 @@ class _GSFieldState extends State<GSField> {
         widget.child = GSQRScannerField(widget.model as GSQRScannerModel, widget.formStyle!);
         break;
       case GSFieldTypeEnum.multiImagePicker:
-        widget.child = GSMultiImagePickerField(widget.model as GSMultiImagePickerModel, widget.formStyle!);
+        widget.child = GSMultiImagePickerField(widget.model as GSMultiImagePickerModel, widget.formStyle!, widget.onArrayChange);
         break;
 
       default:

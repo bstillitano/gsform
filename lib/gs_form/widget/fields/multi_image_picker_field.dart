@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
@@ -16,8 +15,9 @@ import '../../model/fields_model/multi_image_picker_model.dart';
 class GSMultiImagePickerField extends StatefulWidget implements GSFieldCallBack {
   final GSMultiImagePickerModel model;
   final GSFormStyle formStyle;
+  Function(List<String>?)? onChanged;
 
-  GSMultiImagePickerField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSMultiImagePickerField(this.model, this.formStyle, this.onChanged, {Key? key}) : super(key: key);
   List<String> _croppedFilePaths = [];
 
   @override
@@ -82,6 +82,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
                     callBack: (imagePath) {
                       widget._croppedFilePaths.add(imagePath);
                       setState(() {});
+                      widget.onChanged?.call(widget._croppedFilePaths);
                     },
                   )
                 : ImageBox(
@@ -89,6 +90,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
                     onDelete: (value) {
                       widget._croppedFilePaths.removeWhere((element) => element == value);
                       setState(() {});
+                      widget.onChanged?.call(widget._croppedFilePaths);
                     },
                   );
           }),
