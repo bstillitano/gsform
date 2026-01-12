@@ -73,6 +73,7 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
   Widget build(BuildContext context) {
     widget.context = context;
     final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isRequired = widget.model.required ?? false;
 
     return InkWell(
       onTap: () {
@@ -80,7 +81,9 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
       },
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: widget.model.title,
+          label: widget.model.title != null
+              ? _buildLabel(widget.model.title!, isRequired)
+              : null,
           hintText: widget.model.hint,
           helperText: widget.model.helpMessage,
           errorText: isError ? widget.model.errorMessage : null,
@@ -97,6 +100,17 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
                   ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String title, bool isRequired) {
+    if (!isRequired) return Text(title);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title),
+        const Text(' *', style: TextStyle(color: Colors.red)),
+      ],
     );
   }
 

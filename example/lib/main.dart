@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: Colors.deepPurple,
           brightness: Brightness.light,
         ),
         useMaterial3: true,
@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: Colors.deepPurple,
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
@@ -372,8 +372,63 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                       GSField.datePicker(tag: "date", calendarType: GSCalendarType.gregorian),
                       GSField.dateRangePicker(tag: "dateRange", calendarType: GSCalendarType.gregorian)
                     ]),
+                    GSSection(sectionTitle: "Media Inputs",
+                    fields: [
+                      GSField.imagePicker(tag: "imagePicker", iconWidget: const Icon(Icons.image)),
+                      GSField.multiImagePicker(tag: "multiImagePicker", iconWidget: const Icon(Icons.image)),
+                      GSField.qrScanner(tag: "qrScanner")
+                    ]),
+                    GSSection(sectionTitle: "Checklist",
+                    fields: [
+                      GSField.checkList(
+                          tag: 'interests',
+                          title: 'Interests',
+                          weight: 12,
+                          searchable: false,
+                          items: [
+                            CheckDataModel(title: 'Technology', isSelected: true),
+                            CheckDataModel(title: 'Sports', isSelected: false),
+                            CheckDataModel(title: 'Music', isSelected: false),
+                            CheckDataModel(title: 'Travel', isSelected: false),
+                          ],
+                          callBack: (data) {},
+                        ),
+                  ]),
+                  GSSection(sectionTitle: "Radio group",
+                    fields: [
+                        GSField.radioGroup(
+                          tag: 'gender',
+                          title: 'Gender',
+                          weight: 12,
+                          required: false,
+                          scrollDirection: Axis.vertical,
+                          searchable: false,
+                          items: [
+                            RadioDataModel(title: 'Male', isSelected: false),
+                            RadioDataModel(title: 'Female', isSelected: false),
+                            RadioDataModel(title: 'Non-Binary', isSelected: false),
+                            RadioDataModel(title: 'Other', isSelected: false),
+                          ],
+                          callBack: (data) {},
+                        ),
+                    ]),
+                    GSSection(sectionTitle: "Spinner",
+                    fields: [
+                        GSField.spinner(
+                          tag: 'country',
+                          title: 'Country',
+                          weight: 12,
+                          required: false,
+                          items: [
+                            SpinnerDataModel(name: 'United States', id: 1),
+                            SpinnerDataModel(name: 'Canada', id: 2),
+                            SpinnerDataModel(name: 'United Kingdom', id: 3),
+                            SpinnerDataModel(name: 'Australia', id: 4),
+                          ],
+                        ),
+                    ]),
                     GSSection(
-                      sectionTitle: 'Personal Information',
+                      sectionTitle: 'Text inputs',
                       fields: [
                         GSField.text(
                           tag: 'firstName',
@@ -397,20 +452,6 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                           required: true,
                           errorMessage: 'Date of birth is required',
                         ),
-                        GSField.radioGroup(
-                          tag: 'gender',
-                          title: 'Gender',
-                          required: false,
-                          scrollDirection: Axis.vertical,
-                          searchable: false,
-                          items: [
-                            RadioDataModel(title: 'Male', isSelected: false),
-                            RadioDataModel(title: 'Female', isSelected: false),
-                            RadioDataModel(title: 'Non-Binary', isSelected: false),
-                            RadioDataModel(title: 'Other', isSelected: false),
-                          ],
-                          callBack: (data) {},
-                        ),
                       ],
                     ),
                     GSSection(
@@ -430,18 +471,6 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                           weight: 6,
                           required: false,
                         ),
-                        GSField.spinner(
-                          tag: 'country',
-                          title: 'Country',
-                          weight: 6,
-                          required: false,
-                          items: [
-                            SpinnerDataModel(name: 'United States', id: 1),
-                            SpinnerDataModel(name: 'Canada', id: 2),
-                            SpinnerDataModel(name: 'United Kingdom', id: 3),
-                            SpinnerDataModel(name: 'Australia', id: 4),
-                          ],
-                        ),
                         GSField.textPlain(
                           tag: 'address',
                           title: 'Address',
@@ -450,24 +479,6 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                           maxLine: 3,
                           required: false,
                           prefixWidget: const Icon(Icons.location_on),
-                        ),
-                      ],
-                    ),
-                    GSSection(
-                      sectionTitle: 'Preferences',
-                      fields: [
-                        GSField.checkList(
-                          tag: 'interests',
-                          title: 'Interests',
-                          weight: 12,
-                          searchable: false,
-                          items: [
-                            CheckDataModel(title: 'Technology', isSelected: true),
-                            CheckDataModel(title: 'Sports', isSelected: false),
-                            CheckDataModel(title: 'Music', isSelected: false),
-                            CheckDataModel(title: 'Travel', isSelected: false),
-                          ],
-                          callBack: (data) {},
                         ),
                       ],
                     ),
