@@ -1,17 +1,13 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/fields_model/qr_scanner_model.dart';
 import 'package:gsform/gs_form/screens/qr_scanner_screen.dart';
-import 'package:gsform/gs_form/values/colors.dart';
 
 class GSQRScannerField extends StatefulWidget implements GSFieldCallBack {
   final GSQRScannerModel model;
-  final GSFormStyle formStyle;
 
-  GSQRScannerField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSQRScannerField(this.model, {super.key});
   String? _scannedValue;
 
   @override
@@ -47,73 +43,44 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-            customBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            onTap: () {
-              _route(
-                context,
-                QrScannerScreen(
-                  callback: (value) {
-                    widget._scannedValue = value.code;
-                    setState(() {});
-                  },
-                ),
-              );
+    final theme = Theme.of(context);
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+
+    return InkWell(
+      onTap: () {
+        _route(
+          context,
+          QrScannerScreen(
+            callback: (value) {
+              widget._scannedValue = value;
+              setState(() {});
             },
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  widget.model.iconWidget ?? Container(),
-                  const SizedBox(height: 6.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Visibility(
-                        visible: widget.model.required ?? false,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 4, left: 4),
-                          child: Text(
-                            widget.formStyle.requiredText,
-                            style: const TextStyle(
-                              color: GSFormColors.red,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        widget.model.title ?? '',
-                        style: widget.formStyle.titleTextStyle,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4.0),
-                  widget._scannedValue == null
-                      ? Text(
-                          widget.model.hint ?? '',
-                          style: widget.formStyle.fieldHintStyle,
-                        )
-                      : Text(
-                          widget._scannedValue ?? '',
-                          style: widget.formStyle.fieldTextStyle,
-                        ),
-                ],
-              ),
-            )),
+          ),
+        );
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: widget.model.title,
+          hintText: widget.model.hint,
+          helperText: widget.model.helpMessage,
+          errorText: isError ? widget.model.errorMessage : null,
+          border: const OutlineInputBorder(),
+          suffixIcon: widget.model.iconWidget ?? const Icon(Icons.qr_code_scanner),
+          prefixIcon: widget.model.prefixWidget,
+        ),
+        child: Text(
+          widget._scannedValue ?? widget.model.hint ?? 'Tap to scan',
+          style: widget._scannedValue != null
+              ? null
+              : theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.hintColor,
+                ),
+        ),
       ),
     );
   }
 
-  _route(BuildContext context, Widget screen) {
+  void _route(BuildContext context, Widget screen) {
     Navigator.push(
       context,
       MaterialPageRoute<dynamic>(

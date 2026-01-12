@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/fields_model/text_plain_model.dart';
 
-// ignore: must_be_immutable
 class GSTextPlainField extends StatefulWidget implements GSFieldCallBack {
   final GSTextPlainModel model;
-  final GSFormStyle formStyle;
-  Function(String)? onChanged;
+  final Function(String)? onChanged;
 
   TextEditingController? controller;
 
-  GSTextPlainField(this.model, this.formStyle, this.onChanged, {Key? key}) : super(key: key);
+  GSTextPlainField(this.model, this.onChanged, {super.key});
 
   @override
   State<GSTextPlainField> createState() => _GSTextPlainFieldState();
@@ -58,37 +56,48 @@ class _GSTextPlainFieldState extends State<GSTextPlainField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0, bottom: 8.0),
-      child: TextField(
-        readOnly: widget.model.enableReadOnly ?? false,
-        controller: widget.controller,
-        minLines: widget.model.minLine,
-        enableSuggestions: false,
-        autocorrect: false,
-        maxLines: widget.model.maxLine,
-        keyboardType: TextInputType.multiline,
-        focusNode: widget.model.focusNode,
-        maxLength: widget.model.maxLength,
-        style: widget.formStyle.fieldTextStyle,
-        textInputAction: TextInputAction.newline,
-        onSubmitted: (_) {
-          FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
-        },
-        onChanged: (value) {
-          widget.onChanged?.call(value);
-        },
-        decoration: InputDecoration(
-          counter: widget.model.showCounter ?? false ? null : const Offstage(),
-          hintText: widget.model.hint,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          counterStyle: widget.formStyle.fieldHintStyle,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          hintStyle: widget.formStyle.fieldHintStyle,
-        ),
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isRequired = widget.model.required ?? false;
+
+    return TextField(
+      readOnly: widget.model.enableReadOnly ?? false,
+      controller: widget.controller,
+      minLines: widget.model.minLine ?? 3,
+      maxLines: widget.model.maxLine ?? 5,
+      maxLength: widget.model.maxLength,
+      keyboardType: TextInputType.multiline,
+      focusNode: widget.model.focusNode,
+      textInputAction: TextInputAction.newline,
+      onSubmitted: (_) {
+        FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
+      },
+      onChanged: (value) {
+        widget.onChanged?.call(value);
+      },
+      decoration: InputDecoration(
+        label: widget.model.title != null
+            ? _buildLabel(widget.model.title!, isRequired)
+            : null,
+        hintText: widget.model.hint,
+        helperText: widget.model.helpMessage,
+        errorText: isError ? widget.model.errorMessage : null,
+        counterText: widget.model.showCounter == true ? null : '',
+        border: const OutlineInputBorder(),
+        alignLabelWithHint: true,
+        prefixIcon: widget.model.prefixWidget,
+        suffixIcon: widget.model.postfixWidget,
       ),
+    );
+  }
+
+  Widget _buildLabel(String title, bool isRequired) {
+    if (!isRequired) return Text(title);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title),
+        const Text(' *', style: TextStyle(color: Colors.red)),
+      ],
     );
   }
 }

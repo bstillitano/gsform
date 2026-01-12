@@ -1,18 +1,13 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/data_model/date_data_model.dart';
-import 'package:gsform/gs_form/util/util.dart';
+import 'package:gsform/gs_form/model/fields_model/date_picker_model.dart';
 import 'package:intl/intl.dart';
 
-import '../../model/fields_model/date_picker_model.dart';
-
 class GSDatePickerField extends StatefulWidget implements GSFieldCallBack {
-  late GSDatePickerModel model;
-  final GSFormStyle formStyle;
-  Function(DateTime?)? onChanged;
+  final GSDatePickerModel model;
+  final Function(DateTime?)? onChanged;
 
   String selectedDateText = '';
   DateTime? selectedGregorianDate;
@@ -24,7 +19,7 @@ class GSDatePickerField extends StatefulWidget implements GSFieldCallBack {
 
   bool isDateSelected = false;
 
-  GSDatePickerField(this.model, this.formStyle, this.onChanged, {Key? key}) : super(key: key);
+  GSDatePickerField(this.model, this.onChanged, {super.key});
 
   @override
   State<GSDatePickerField> createState() => _GSDatePickerFieldState();
@@ -43,11 +38,14 @@ class GSDatePickerField extends StatefulWidget implements GSFieldCallBack {
     }
   }
 
-  _getData() {
+  DateDataModel? _getData() {
     return selectedGregorianDate == null
-          ? null
-          : DateDataModel(
-              dateServerType: selectedGregorianDate!, timeStamp: selectedGregorianDate!.millisecondsSinceEpoch, showDateStr: selectedDateText);
+        ? null
+        : DateDataModel(
+            dateServerType: selectedGregorianDate!,
+            timeStamp: selectedGregorianDate!.millisecondsSinceEpoch,
+            showDateStr: selectedDateText,
+          );
   }
 }
 
@@ -62,9 +60,10 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
   void didUpdateWidget(covariant GSDatePickerField oldWidget) {
     if (oldWidget.selectedGregorianDate != null) {
       widget.model.initialDate = GSDate(
-          year: oldWidget.selectedGregorianDate!.year,
-          month: oldWidget.selectedGregorianDate!.month,
-          day: oldWidget.selectedGregorianDate!.day);
+        year: oldWidget.selectedGregorianDate!.year,
+        month: oldWidget.selectedGregorianDate!.month,
+        day: oldWidget.selectedGregorianDate!.day,
+      );
     }
     _initialDates();
     super.didUpdateWidget(oldWidget);
@@ -73,43 +72,63 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
   @override
   Widget build(BuildContext context) {
     widget.context = context;
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isRequired = widget.model.required ?? false;
+
     return InkWell(
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10.0, left: 10.0, top: 18, bottom: 18),
-        child: Row(
-          children: [
-            Expanded(
-              child: Align(
-                alignment: widget.model.dateFormatType == GSDateFormatType.numeric
-                    ? Alignment.centerLeft
-                    : GSFormUtils.isDirectionRTL(context)
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                child: Text(
-                  widget.selectedDateText.isEmpty ? widget.model.hint ?? '' : widget.selectedDateText,
-                  style: widget.isDateSelected ? widget.formStyle.fieldTextStyle : widget.formStyle.fieldHintStyle,
-                  maxLines: 1,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
       onTap: () {
         _openGregorianPicker();
       },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          label: widget.model.title != null
+              ? _buildLabel(widget.model.title!, isRequired)
+              : null,
+          hintText: widget.model.hint,
+          helperText: widget.model.helpMessage,
+          errorText: isError ? widget.model.errorMessage : null,
+          border: const OutlineInputBorder(),
+          suffixIcon: const Icon(Icons.calendar_today),
+          prefixIcon: widget.model.prefixWidget,
+        ),
+        child: Text(
+          widget.selectedDateText.isEmpty
+              ? widget.model.hint ?? ''
+              : widget.selectedDateText,
+          style: widget.isDateSelected
+              ? null
+              : Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+        ),
+      ),
     );
   }
 
-  _initialDates() {
+  Widget _buildLabel(String title, bool isRequired) {
+    if (!isRequired) return Text(title);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title),
+        const Text(' *', style: TextStyle(color: Colors.red)),
+      ],
+    );
+  }
+
+  void _initialDates() {
     _initialGregorianDates();
   }
 
-  _initialGregorianDates() {
+  void _initialGregorianDates() {
     if (widget.model.initialDate == null) {
       widget.gregorianInitialDate = DateTime.now();
     } else {
-      widget.gregorianInitialDate = DateTime(widget.model.initialDate!.year, widget.model.initialDate!.month, widget.model.initialDate!.day);
+      widget.gregorianInitialDate = DateTime(
+        widget.model.initialDate!.year,
+        widget.model.initialDate!.month,
+        widget.model.initialDate!.day,
+      );
       widget.selectedGregorianDate = widget.gregorianInitialDate;
       _displayGregorianDate();
     }
@@ -117,17 +136,24 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
     if (widget.model.availableTo == null) {
       widget.gregorianAvailableTo = DateTime(2100, 1, 1);
     } else {
-      widget.gregorianAvailableTo = DateTime(widget.model.availableTo!.year, widget.model.availableTo!.month, widget.model.availableTo!.day);
+      widget.gregorianAvailableTo = DateTime(
+        widget.model.availableTo!.year,
+        widget.model.availableTo!.month,
+        widget.model.availableTo!.day,
+      );
     }
 
     _initialGregorianAvailableFromDate();
   }
 
-  _initialGregorianAvailableFromDate() {
+  void _initialGregorianAvailableFromDate() {
     if (widget.model.isPastAvailable ?? false) {
       if (widget.model.availableFrom != null) {
-        widget.gregorianAvailableFrom =
-            DateTime(widget.model.availableFrom!.year, widget.model.availableFrom!.month, widget.model.availableFrom!.day);
+        widget.gregorianAvailableFrom = DateTime(
+          widget.model.availableFrom!.year,
+          widget.model.availableFrom!.month,
+          widget.model.availableFrom!.day,
+        );
       } else {
         widget.gregorianAvailableFrom = DateTime(1700, 1, 1);
       }
@@ -136,11 +162,7 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
     }
   }
 
-  _openDatePicker() async {
-    widget.isDateSelected = false;
-  }
-
-  _openGregorianPicker() async {
+  Future<void> _openGregorianPicker() async {
     DateTime? picked = await showDatePicker(
       context: widget.context,
       initialDate: widget.gregorianInitialDate,
@@ -152,40 +174,46 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
       widget.isDateSelected = true;
       widget.gregorianInitialDate = picked;
       _displayGregorianDate();
-      update();
+      _update();
     } else {
       widget.isDateSelected = false;
     }
     widget.onChanged?.call(picked);
   }
 
-  update() {
+  void _update() {
     if (mounted) {
       setState(() {});
     }
   }
 
-  _displayGregorianDate() {
+  void _displayGregorianDate() {
     if (widget.model.dateFormatType != null) {
       switch (widget.model.dateFormatType) {
         case GSDateFormatType.numeric:
-          widget.selectedDateText = DateFormat.yMd().format(widget.selectedGregorianDate!);
+          widget.selectedDateText =
+              DateFormat.yMd().format(widget.selectedGregorianDate!);
           break;
         case GSDateFormatType.fullText:
-          widget.selectedDateText = DateFormat('EEE, MMM d, ' 'yyyy').format(widget.selectedGregorianDate!);
+          widget.selectedDateText =
+              DateFormat('EEE, MMM d, ' 'yyyy').format(widget.selectedGregorianDate!);
           break;
         case GSDateFormatType.mediumText:
-          widget.selectedDateText = DateFormat('EEE, MMM d').format(widget.selectedGregorianDate!);
+          widget.selectedDateText =
+              DateFormat('EEE, MMM d').format(widget.selectedGregorianDate!);
           break;
         case GSDateFormatType.shortText:
-          widget.selectedDateText = DateFormat('MMM d, ' 'yyyy').format(widget.selectedGregorianDate!);
+          widget.selectedDateText =
+              DateFormat('MMM d, ' 'yyyy').format(widget.selectedGregorianDate!);
           break;
         default:
-          widget.selectedDateText = DateFormat.yMd().format(widget.selectedGregorianDate!);
+          widget.selectedDateText =
+              DateFormat.yMd().format(widget.selectedGregorianDate!);
           break;
       }
     } else {
-      widget.selectedDateText = DateFormat.yMd().format(widget.selectedGregorianDate!);
+      widget.selectedDateText =
+          DateFormat.yMd().format(widget.selectedGregorianDate!);
     }
   }
 }

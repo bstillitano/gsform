@@ -1,20 +1,15 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-
-import '../../core/form_style.dart';
-import '../../model/fields_model/text_password_model.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
+import 'package:gsform/gs_form/model/fields_model/text_password_model.dart';
 
 class GSPasswordField extends StatefulWidget implements GSFieldCallBack {
-  late GSPasswordModel model;
-  GSFormStyle formStyle;
-  void Function(void Function())? state;
+  final GSPasswordModel model;
   bool obscured = true;
 
   TextEditingController? controller;
 
-  GSPasswordField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSPasswordField(this.model, {super.key});
 
   @override
   State<GSPasswordField> createState() => _GSPasswordFieldState();
@@ -62,43 +57,57 @@ class _GSPasswordFieldState extends State<GSPasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(start: 10.0),
-      child: TextField(
-        readOnly: widget.model.enableReadOnly ?? false,
-        textAlignVertical: TextAlignVertical.center,
-        keyboardType: TextInputType.visiblePassword,
-        obscureText: widget.obscured,
-        focusNode: widget.model.focusNode,
-        style: widget.formStyle.fieldTextStyle,
-        controller: widget.controller,
-        obscuringCharacter: '●',
-        textInputAction: widget.model.nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
-        onSubmitted: (_) {
-          FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
-        },
-        decoration: InputDecoration(
-          hintText: widget.model.hint,
-          counterText: '',
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          suffixIcon: GestureDetector(
-            onTap: () {
-              _update();
-            },
-            child: Icon(
-              widget.obscured ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-            ),
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isRequired = widget.model.required ?? false;
+
+    return TextField(
+      readOnly: widget.model.enableReadOnly ?? false,
+      textAlignVertical: TextAlignVertical.center,
+      keyboardType: TextInputType.visiblePassword,
+      obscureText: widget.obscured,
+      focusNode: widget.model.focusNode,
+      controller: widget.controller,
+      obscuringCharacter: '●',
+      textInputAction: widget.model.nextFocusNode != null
+          ? TextInputAction.next
+          : TextInputAction.done,
+      onSubmitted: (_) {
+        FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
+      },
+      decoration: InputDecoration(
+        label: widget.model.title != null
+            ? _buildLabel(widget.model.title!, isRequired)
+            : null,
+        hintText: widget.model.hint,
+        helperText: widget.model.helpMessage,
+        errorText: isError ? widget.model.errorMessage : null,
+        counterText: '',
+        border: const OutlineInputBorder(),
+        prefixIcon: widget.model.prefixWidget,
+        suffixIcon: IconButton(
+          onPressed: _toggleVisibility,
+          icon: Icon(
+            widget.obscured
+                ? Icons.visibility_rounded
+                : Icons.visibility_off_rounded,
           ),
-          hintStyle: widget.formStyle.fieldHintStyle,
         ),
       ),
     );
   }
 
-  _update() {
+  Widget _buildLabel(String title, bool isRequired) {
+    if (!isRequired) return Text(title);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title),
+        const Text(' *', style: TextStyle(color: Colors.red)),
+      ],
+    );
+  }
+
+  void _toggleVisibility() {
     if (mounted) {
       setState(() => widget.obscured = !widget.obscured);
     }

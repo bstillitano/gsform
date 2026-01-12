@@ -1,19 +1,16 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/data_model/spinner_data_model.dart';
 import 'package:gsform/gs_form/model/fields_model/spinner_model.dart';
 
 class GSSpinnerField extends StatefulWidget implements GSFieldCallBack {
-  final hintIndex = -1;
+  final int hintIndex = -1;
 
-  GSSpinnerModel model;
-  GSFormStyle formStyle;
+  final GSSpinnerModel model;
   SpinnerDataModel? returnedData;
 
-  GSSpinnerField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSSpinnerField(this.model, {super.key});
 
   @override
   State<GSSpinnerField> createState() => _GSSpinnerFieldState();
@@ -51,10 +48,17 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
         widget.returnedData = widget.model.items[0];
       }
 
-      if (widget.model.hint != null && widget.model.hint!.isNotEmpty && widget.hintIndex != widget.model.items[0].id) {
+      if (widget.model.hint != null &&
+          widget.model.hint!.isNotEmpty &&
+          widget.hintIndex != widget.model.items[0].id) {
         widget.model.items.insert(
           0,
-          SpinnerDataModel(name: widget.model.hint!, id: widget.hintIndex, data: null, isSelected: false),
+          SpinnerDataModel(
+            name: widget.model.hint!,
+            id: widget.hintIndex,
+            data: null,
+            isSelected: false,
+          ),
         );
       }
     }
@@ -88,44 +92,55 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: DropdownButton<SpinnerDataModel>(
-              underline: const SizedBox(),
-              iconSize: 0,
-              icon: const Padding(
-                padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 20,
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isRequired = widget.model.required ?? false;
+
+    return DropdownButtonFormField<SpinnerDataModel>(
+      value: widget.returnedData,
+      isExpanded: true,
+      decoration: InputDecoration(
+        label: widget.model.title != null
+            ? _buildLabel(widget.model.title!, isRequired)
+            : null,
+        helperText: widget.model.helpMessage,
+        errorText: isError ? widget.model.errorMessage : null,
+        border: const OutlineInputBorder(),
+        prefixIcon: widget.model.prefixWidget,
+      ),
+      items: widget.model.items
+          .map((e) => DropdownMenuItem<SpinnerDataModel>(
+                value: e,
+                child: Text(
+                  e.name,
+                  style: e.id == widget.hintIndex
+                      ? Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).hintColor,
+                          )
+                      : null,
                 ),
-              ),
-              isExpanded: true,
-              value: widget.returnedData,
-              items: widget.model.items
-                  .map((e) => DropdownMenuItem(
-                      value: e,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 8.0),
-                        child: Text(
-                          e.name,
-                          style: e.id == widget.hintIndex
-                              ? widget.formStyle.fieldHintStyle
-                              : widget.formStyle.fieldTextStyle,
-                        ),
-                      )))
-                  .toList(),
-              onChanged: (value) {
-                if (value?.id != widget.hintIndex) {
-                  widget.model.items.firstWhere((element) => element.id == value!.id).isSelected = true;
-                  value?.isSelected = true;
-                  widget.returnedData = value;
-                  widget.model.onChange?.call(value);
-                  setState(() => {});
-                }
-              }),
-        ),
+              ))
+          .toList(),
+      onChanged: (value) {
+        if (value?.id != widget.hintIndex) {
+          widget.model.items
+              .firstWhere((element) => element.id == value!.id)
+              .isSelected = true;
+          value?.isSelected = true;
+          widget.returnedData = value;
+          widget.model.onChange?.call(value);
+          setState(() {});
+        }
+      },
+    );
+  }
+
+  Widget _buildLabel(String title, bool isRequired) {
+    if (!isRequired) return Text(title);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title),
+        const Text(' *', style: TextStyle(color: Colors.red)),
       ],
     );
   }

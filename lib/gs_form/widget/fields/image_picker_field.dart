@@ -1,22 +1,18 @@
 import 'dart:io';
 
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/fields_model/image_picker_model.dart';
 import 'package:gsform/gs_form/util/util.dart';
-import 'package:gsform/gs_form/values/colors.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-// ignore: must_be_immutable
 class GSImagePickerField extends StatefulWidget implements GSFieldCallBack {
   final GSImagePickerModel model;
-  final GSFormStyle formStyle;
-  Function(String?)? onChanged;
+  final Function(String?)? onChanged;
 
-  GSImagePickerField(this.model, this.formStyle, this.onChanged, {Key? key}) : super(key: key);
+  GSImagePickerField(this.model, this.onChanged, {super.key});
   String? _croppedFilePath;
 
   @override
@@ -60,6 +56,10 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -96,27 +96,37 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
             );
           }
         },
-        child: widget._croppedFilePath == null
-            ? NormalView(model: widget.model, formStyle: widget.formStyle)
-            : ImagePickedView(
-                croppedFilePath: widget._croppedFilePath!,
-                model: widget.model,
-                formStyle: widget.formStyle,
-                onDeleteImage: () {
-                  widget._croppedFilePath = null;
-                  setState(() {});
-                }),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: isError ? colorScheme.error : colorScheme.outline,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: widget._croppedFilePath == null
+              ? _NormalView(model: widget.model)
+              : _ImagePickedView(
+                  croppedFilePath: widget._croppedFilePath!,
+                  model: widget.model,
+                  onDeleteImage: () {
+                    widget._croppedFilePath = null;
+                    setState(() {});
+                  },
+                ),
+        ),
       ),
     );
   }
 
-  _fillImagePath(File image) {
+  void _fillImagePath(File image) {
     if (widget.model.showCropper ?? false) {
       _cropImage(image);
     } else {
       setState(() {});
       if (widget.model.maximumSizePerImageInBytes != null) {
-        if (image.lengthSync() / 1000 < widget.model.maximumSizePerImageInBytes!) {
+        if (image.lengthSync() / 1000 <
+            widget.model.maximumSizePerImageInBytes!) {
           widget._croppedFilePath = image.path;
         } else {
           widget.model.onErrorSizeItem?.call();
@@ -129,17 +139,21 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
   }
 
   Future<void> _cropImage(File image) async {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: image.path,
       compressFormat: ImageCompressFormat.jpg,
       compressQuality: 100,
       uiSettings: [
         AndroidUiSettings(
-            toolbarTitle: 'Preview',
-            toolbarColor: GSFormColors.white,
-            toolbarWidgetColor: Colors.black,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
+          toolbarTitle: 'Preview',
+          toolbarColor: colorScheme.surface,
+          toolbarWidgetColor: colorScheme.onSurface,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+        ),
         IOSUiSettings(
           title: 'Cropper',
         ),
@@ -148,7 +162,8 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
     if (croppedFile != null) {
       setState(() {
         if (widget.model.maximumSizePerImageInBytes != null) {
-          if (image.lengthSync() / 1000 < widget.model.maximumSizePerImageInBytes!) {
+          if (image.lengthSync() / 1000 <
+              widget.model.maximumSizePerImageInBytes!) {
             widget._croppedFilePath = image.path;
           } else {
             widget.model.onErrorSizeItem?.call();
@@ -161,13 +176,15 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
   }
 }
 
-class NormalView extends StatelessWidget {
-  const NormalView({required this.model, required this.formStyle, Key? key}) : super(key: key);
+class _NormalView extends StatelessWidget {
+  const _NormalView({required this.model});
   final GSImagePickerModel model;
-  final GSFormStyle formStyle;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -179,29 +196,29 @@ class NormalView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Visibility(
-                visible: model.required ?? false,
-                child: Padding(
+              if (model.required ?? false)
+                Padding(
                   padding: const EdgeInsets.only(right: 4, left: 4),
                   child: Text(
-                    formStyle.requiredText,
-                    style: const TextStyle(
-                      color: GSFormColors.red,
+                    '*',
+                    style: TextStyle(
+                      color: colorScheme.error,
                       fontSize: 10,
                     ),
                   ),
                 ),
-              ),
               Text(
                 model.title ?? '',
-                style: formStyle.titleTextStyle,
+                style: theme.textTheme.titleMedium,
               ),
             ],
           ),
           const SizedBox(height: 6.0),
           Text(
             model.hint ?? '',
-            style: formStyle.fieldHintStyle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.hintColor,
+            ),
           ),
         ],
       ),
@@ -209,18 +226,22 @@ class NormalView extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
-class ImagePickedView extends StatelessWidget {
-  String croppedFilePath;
+class _ImagePickedView extends StatelessWidget {
+  final String croppedFilePath;
   final GSImagePickerModel model;
-  final GSFormStyle formStyle;
   final VoidCallback onDeleteImage;
 
-  ImagePickedView({required this.croppedFilePath, Key? key, required this.model, required this.formStyle, required this.onDeleteImage})
-      : super(key: key);
+  const _ImagePickedView({
+    required this.croppedFilePath,
+    required this.model,
+    required this.onDeleteImage,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SizedBox(
       height: 140,
       child: Stack(
@@ -238,15 +259,9 @@ class ImagePickedView extends StatelessWidget {
                 height: 32.0,
                 decoration: const BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: SmoothBorderRadius.only(
-                    bottomLeft: SmoothRadius(
-                      cornerRadius: 11.0,
-                      cornerSmoothing: 1,
-                    ),
-                    bottomRight: SmoothRadius(
-                      cornerRadius: 11.0,
-                      cornerSmoothing: 1,
-                    ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(9.0),
+                    bottomRight: Radius.circular(9.0),
                   ),
                 ),
                 child: Padding(
@@ -255,15 +270,19 @@ class ImagePickedView extends StatelessWidget {
                     children: [
                       Text(
                         model.title!,
-                        style: formStyle.titleTextStyle.copyWith(color: Colors.white),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                       const Spacer(),
                       SizedBox(
                         height: 20.0,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            backgroundColor: colorScheme.error,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                           onPressed: () {
                             onDeleteImage.call();
@@ -275,7 +294,9 @@ class ImagePickedView extends StatelessWidget {
                               Text(
                                 'Delete',
                                 maxLines: 1,
-                                style: formStyle.titleTextStyle.copyWith(color: Colors.white),
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.onError,
+                                ),
                               ),
                             ],
                           ),

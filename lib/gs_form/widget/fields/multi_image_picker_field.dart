@@ -1,27 +1,23 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
 import 'package:gsform/gs_form/model/fields_model/image_picker_model.dart';
+import 'package:gsform/gs_form/model/fields_model/multi_image_picker_model.dart';
 import 'package:gsform/gs_form/util/util.dart';
-import 'package:gsform/gs_form/values/colors.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../model/fields_model/multi_image_picker_model.dart';
-
-// ignore: must_be_immutable
 class GSMultiImagePickerField extends StatefulWidget implements GSFieldCallBack {
   final GSMultiImagePickerModel model;
-  final GSFormStyle formStyle;
-  Function(List<String>?)? onChanged;
+  final Function(List<String>?)? onChanged;
 
-  GSMultiImagePickerField(this.model, this.formStyle, this.onChanged, {Key? key}) : super(key: key);
+  GSMultiImagePickerField(this.model, this.onChanged, {super.key});
   List<String> _croppedFilePaths = [];
 
   @override
-  State<GSMultiImagePickerField> createState() => _GSMultiImagePickerFieldState();
+  State<GSMultiImagePickerField> createState() =>
+      _GSMultiImagePickerFieldState();
 
   @override
   getValue() {
@@ -64,36 +60,37 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 1.0,
-            mainAxisSpacing: 10.0,
-            crossAxisSpacing: 10.0,
-          ),
-          itemCount: widget._croppedFilePaths.length + 1,
-          itemBuilder: (context, index) {
-            return index == 0
-                ? SelectItem(
-                    model: widget.model,
-                    style: widget.formStyle,
-                    isEnable: _enableSelectImageButton(),
-                    callBack: (imagePath) {
-                      widget._croppedFilePaths.add(imagePath);
-                      setState(() {});
-                      widget.onChanged?.call(widget._croppedFilePaths);
-                    },
-                  )
-                : ImageBox(
-                    imagePath: widget._croppedFilePaths[index - 1],
-                    onDelete: (value) {
-                      widget._croppedFilePaths.removeWhere((element) => element == value);
-                      setState(() {});
-                      widget.onChanged?.call(widget._croppedFilePaths);
-                    },
-                  );
-          }),
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 1.0,
+          mainAxisSpacing: 10.0,
+          crossAxisSpacing: 10.0,
+        ),
+        itemCount: widget._croppedFilePaths.length + 1,
+        itemBuilder: (context, index) {
+          return index == 0
+              ? _SelectItem(
+                  model: widget.model,
+                  isEnable: _enableSelectImageButton(),
+                  callBack: (imagePath) {
+                    widget._croppedFilePaths.add(imagePath);
+                    setState(() {});
+                    widget.onChanged?.call(widget._croppedFilePaths);
+                  },
+                )
+              : _ImageBox(
+                  imagePath: widget._croppedFilePaths[index - 1],
+                  onDelete: (value) {
+                    widget._croppedFilePaths
+                        .removeWhere((element) => element == value);
+                    setState(() {});
+                    widget.onChanged?.call(widget._croppedFilePaths);
+                  },
+                );
+        },
+      ),
     );
   }
 
@@ -110,26 +107,31 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
   }
 }
 
-class SelectItem extends StatelessWidget {
-  const SelectItem({required this.model, required this.style, required this.callBack, required this.isEnable, Key? key}) : super(key: key);
+class _SelectItem extends StatelessWidget {
+  const _SelectItem({
+    required this.model,
+    required this.callBack,
+    required this.isEnable,
+  });
 
   final GSMultiImagePickerModel model;
-  final GSFormStyle style;
   final ValueChanged<String> callBack;
   final bool isEnable;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Material(
       color: Colors.transparent,
       child: AbsorbPointer(
         absorbing: !isEnable,
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(10),
-              ),
-              border: Border.all(color: Colors.black45, width: 1)),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            border: Border.all(color: colorScheme.outline, width: 1),
+          ),
           height: 90,
           width: 90,
           child: InkWell(
@@ -145,14 +147,14 @@ class SelectItem extends StatelessWidget {
                   galleryAssets: model.galleryPopupIcon,
                   context,
                   (image) async {
-                    _fillImagePath(image);
+                    _fillImagePath(context, image);
                   },
                 );
               } else if (model.imageSource == GSImageSource.camera) {
                 GSFormUtils.pickImage(ImageSource.camera).then(
                   (imageFile) {
                     if (imageFile != null) {
-                      _fillImagePath(imageFile);
+                      _fillImagePath(context, imageFile);
                     }
                   },
                 );
@@ -160,14 +162,16 @@ class SelectItem extends StatelessWidget {
                 GSFormUtils.pickImage(ImageSource.gallery).then(
                   (imageFile) {
                     if (imageFile != null) {
-                      _fillImagePath(imageFile);
+                      _fillImagePath(context, imageFile);
                     }
                   },
                 );
               }
             },
             child: Container(
-              color: isEnable ? Colors.transparent : Colors.black45,
+              color: isEnable
+                  ? Colors.transparent
+                  : theme.hintColor.withValues(alpha: 0.3),
               child: model.iconWidget,
             ),
           ),
@@ -176,9 +180,9 @@ class SelectItem extends StatelessWidget {
     );
   }
 
-  _fillImagePath(File image) {
+  void _fillImagePath(BuildContext context, File image) {
     if (model.showCropper ?? false) {
-      _cropImage(image);
+      _cropImage(context, image);
     } else {
       if (model.maximumSizePerImageInKB != null) {
         if (image.lengthSync() / 1000 < model.maximumSizePerImageInKB!) {
@@ -192,18 +196,22 @@ class SelectItem extends StatelessWidget {
     }
   }
 
-  Future<void> _cropImage(File image) async {
+  Future<void> _cropImage(BuildContext context, File image) async {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: image.path,
       compressFormat: ImageCompressFormat.jpg,
       compressQuality: 100,
       uiSettings: [
         AndroidUiSettings(
-            toolbarTitle: 'Preview',
-            toolbarColor: GSFormColors.white,
-            toolbarWidgetColor: Colors.black,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
+          toolbarTitle: 'Preview',
+          toolbarColor: colorScheme.surface,
+          toolbarWidgetColor: colorScheme.onSurface,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+        ),
         IOSUiSettings(
           title: 'Cropper',
         ),
@@ -223,63 +231,69 @@ class SelectItem extends StatelessWidget {
   }
 }
 
-class ImageBox extends StatelessWidget {
-  const ImageBox({
-    Key? key,
+class _ImageBox extends StatelessWidget {
+  const _ImageBox({
     required this.imagePath,
     required this.onDelete,
-  }) : super(key: key);
+  });
+
   final String imagePath;
   final ValueChanged<String> onDelete;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SizedBox(
       width: 100,
       height: 100,
-      child: Stack(fit: StackFit.expand, children: [
-        Container(
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0)),
-          clipBehavior: Clip.hardEdge,
-          child: imagePath.contains('http')
-              ? Image.network(
-                  imagePath,
-                  width: 90,
-                  height: 90,
-                  fit: BoxFit.fill,
-                )
-              : Image.file(
-                  File(imagePath),
-                  width: 90,
-                  height: 90,
-                  fit: BoxFit.fill,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(
+            width: 90,
+            height: 90,
+            decoration:
+                BoxDecoration(borderRadius: BorderRadius.circular(5.0)),
+            clipBehavior: Clip.hardEdge,
+            child: imagePath.contains('http')
+                ? Image.network(
+                    imagePath,
+                    width: 90,
+                    height: 90,
+                    fit: BoxFit.fill,
+                  )
+                : Image.file(
+                    File(imagePath),
+                    width: 90,
+                    height: 90,
+                    fit: BoxFit.fill,
+                  ),
+          ),
+          Positioned(
+            bottom: 8.0,
+            left: 8.0,
+            child: InkWell(
+              onTap: () {
+                onDelete.call(imagePath);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(4.0),
+                decoration: BoxDecoration(
+                  color: colorScheme.error,
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
-        ),
-        Positioned(
-          bottom: 8.0,
-          left: 8.0,
-          child: InkWell(
-            onTap: () {
-              onDelete.call(imagePath);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(4.0),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: SvgPicture.asset(
-                'packages/gsform/assets/ic_trash.svg',
-                height: 15,
-                width: 15,
-                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                child: Icon(
+                  Icons.delete,
+                  size: 15,
+                  color: colorScheme.onError,
+                ),
               ),
             ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

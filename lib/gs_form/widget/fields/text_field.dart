@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/fields_model/text_filed_model.dart';
 
-// ignore: must_be_immutable
 class GSTextField extends StatefulWidget implements GSFieldCallBack {
   final GSTextModel model;
-  final GSFormStyle formStyle;
-  Function(String)? onChanged;
+  final Function(String)? onChanged;
 
   TextEditingController? controller;
 
-  GSTextField(this.model, this.formStyle, this.onChanged, {Key? key}) : super(key: key);
+  GSTextField(this.model, this.onChanged, {super.key});
 
   @override
   State<GSTextField> createState() => _GSTextFieldState();
@@ -58,32 +56,47 @@ class _GSTextFieldState extends State<GSTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 10.0, left: 10.0),
-      child: TextField(
-        readOnly: widget.model.enableReadOnly ?? false,
-        controller: widget.controller,
-        maxLength: widget.model.maxLength,
-        style: widget.formStyle.fieldTextStyle,
-        keyboardType: TextInputType.text,
-        focusNode: widget.model.focusNode,
-        textInputAction: widget.model.nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
-        onSubmitted: (_) {
-          FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
-        },
-        onChanged: (value) {
-          widget.onChanged?.call(value);
-        },
-        decoration: InputDecoration(
-          hintText: widget.model.hint,
-          counterText: '',
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          hintStyle: widget.formStyle.fieldHintStyle,
-        ),
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isRequired = widget.model.required ?? false;
+
+    return TextField(
+      readOnly: widget.model.enableReadOnly ?? false,
+      controller: widget.controller,
+      maxLength: widget.model.maxLength,
+      keyboardType: TextInputType.text,
+      focusNode: widget.model.focusNode,
+      textInputAction: widget.model.nextFocusNode != null
+          ? TextInputAction.next
+          : TextInputAction.done,
+      onSubmitted: (_) {
+        FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
+      },
+      onChanged: (value) {
+        widget.onChanged?.call(value);
+      },
+      decoration: InputDecoration(
+        label: widget.model.title != null
+            ? _buildLabel(widget.model.title!, isRequired)
+            : null,
+        hintText: widget.model.hint,
+        helperText: widget.model.helpMessage,
+        errorText: isError ? widget.model.errorMessage : null,
+        counterText: '',
+        border: const OutlineInputBorder(),
+        prefixIcon: widget.model.prefixWidget,
+        suffixIcon: widget.model.postfixWidget,
       ),
+    );
+  }
+
+  Widget _buildLabel(String title, bool isRequired) {
+    if (!isRequired) return Text(title);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title),
+        const Text(' *', style: TextStyle(color: Colors.red)),
+      ],
     );
   }
 }

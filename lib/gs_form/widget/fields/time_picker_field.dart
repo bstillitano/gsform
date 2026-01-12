@@ -1,23 +1,19 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/data_model/time_data_model.dart';
 import 'package:gsform/gs_form/model/fields_model/time_picker_model.dart';
 
 class GSTimePickerField extends StatefulWidget implements GSFieldCallBack {
-  late GSTimePickerModel model;
-  GSFormStyle formStyle;
-  Function(TimeOfDay?)? onChanged;
+  final GSTimePickerModel model;
+  final Function(TimeOfDay?)? onChanged;
 
   String? selectedTimeText;
-
   bool isTimeSelected = false;
   TimeOfDay? selectedTime;
   late BuildContext context;
 
-  GSTimePickerField(this.model, this.formStyle, this.onChanged, {Key? key}) : super(key: key) {
+  GSTimePickerField(this.model, this.onChanged, {super.key}) {
     selectedTimeText = model.hint ?? 'Select a time';
   }
 
@@ -34,18 +30,18 @@ class GSTimePickerField extends StatefulWidget implements GSFieldCallBack {
     if (!(model.required ?? false)) {
       return true;
     } else {
-      if (selectedTime == null) {
-        return false;
-      } else {
-        return true;
-      }
+      return selectedTime != null;
     }
   }
 
-  _provideData(BuildContext context) {
+  TimeDataModel? _provideData(BuildContext context) {
     return selectedTime == null
         ? null
-        : TimeDataModel(displayTime: selectedTime!.format(context), hour: selectedTime!.hour, minute: selectedTime!.minute);
+        : TimeDataModel(
+            displayTime: selectedTime!.format(context),
+            hour: selectedTime!.hour,
+            minute: selectedTime!.minute,
+          );
   }
 }
 
@@ -67,7 +63,6 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
     } else {
       widget.selectedTime = oldWidget.selectedTime;
       widget.selectedTimeText = oldWidget.selectedTimeText;
-      widget.selectedTimeText = oldWidget.selectedTimeText;
     }
     widget.isTimeSelected = true;
     _displayTime(widget.selectedTime!);
@@ -77,27 +72,35 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
   @override
   Widget build(BuildContext context) {
     widget.context = context;
-    return Padding(
-      padding: const EdgeInsets.only(right: 10.0, left: 10.0, top: 16, bottom: 16),
-      child: InkWell(
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                widget.selectedTimeText!,
-                style: widget.isTimeSelected ? widget.formStyle.fieldTextStyle : widget.formStyle.fieldHintStyle,
-              ),
-            ),
-          ],
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+
+    return InkWell(
+      onTap: () {
+        _openTimePicker();
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: widget.model.title,
+          hintText: widget.model.hint,
+          helperText: widget.model.helpMessage,
+          errorText: isError ? widget.model.errorMessage : null,
+          border: const OutlineInputBorder(),
+          suffixIcon: const Icon(Icons.access_time),
+          prefixIcon: widget.model.prefixWidget,
         ),
-        onTap: () {
-          _openTimePicker();
-        },
+        child: Text(
+          widget.selectedTimeText!,
+          style: widget.isTimeSelected
+              ? null
+              : Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+        ),
       ),
     );
   }
 
-  _openTimePicker() async {
+  Future<void> _openTimePicker() async {
     var picked = await showTimePicker(
       context: widget.context,
       initialTime: widget.selectedTime ?? TimeOfDay.now(),
@@ -109,22 +112,25 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
       widget.model.initialTime = picked;
       widget.isTimeSelected = true;
       _displayTime(picked);
-      update();
+      _update();
     } else {
       widget.isTimeSelected = false;
     }
     widget.onChanged?.call(picked);
   }
 
-  update() {
+  void _update() {
     if (mounted) {
       setState(() {});
     }
   }
 
-  _displayTime(TimeOfDay time) {
-    String hour = time.hour.toString().length == 1 ? '0${time.hour}' : time.hour.toString();
-    String minute = time.minute.toString().length == 1 ? '0${time.minute}' : time.minute.toString();
+  void _displayTime(TimeOfDay time) {
+    String hour =
+        time.hour.toString().length == 1 ? '0${time.hour}' : time.hour.toString();
+    String minute = time.minute.toString().length == 1
+        ? '0${time.minute}'
+        : time.minute.toString();
     widget.selectedTimeText = '$hour:$minute';
   }
 }

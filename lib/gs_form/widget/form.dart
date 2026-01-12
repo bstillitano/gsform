@@ -1,59 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
 import 'package:gsform/gs_form/enums/field_status.dart';
-import 'package:gsform/gs_form/util/util.dart';
 
 import 'field.dart';
 import 'section.dart';
 
-// ignore: must_be_immutable
+/// A form widget that organizes fields into sections.
+///
+/// Use [GSForm.singleSection] for forms with a flat list of fields,
+/// or [GSForm.multiSection] for forms with multiple grouped sections.
+///
+/// The form automatically adapts to light/dark mode using Material's [ThemeData].
+/// You can customize appearance via the standard [ThemeData.inputDecorationTheme],
+/// [ThemeData.cardTheme], and [ThemeData.textTheme].
 class GSForm extends StatelessWidget {
-  GSFormStyle? style;
-  late List<GSSection> sections;
-  late List<Widget> fields;
+  final List<GSSection> sections;
 
-  GSForm.singleSection(BuildContext context, {Key? key, this.style, required this.fields}) : super(key: key) {
-    style ??= GSFormUtils.checkIfDarkModeEnabled(context)
-        ? style ?? GSFormStyle.singleSectionFormDefaultDarkStyle
-        : GSFormStyle.singleSectionFormDefaultStyle;
-    sections = [
-      GSSection(
-        style: style,
-        sectionTitle: null,
-        fields: fields,
-      )
-    ];
-    GSForm.multiSection(
-      context,
-      style: style,
+  const GSForm._({
+    super.key,
+    required this.sections,
+  });
+
+  /// Creates a form with a single section containing the given fields.
+  ///
+  /// This is a convenience constructor for simple forms that don't need
+  /// multiple sections. The fields will be displayed without a section title.
+  factory GSForm.singleSection(
+    BuildContext context, {
+    Key? key,
+    required List<Widget> fields,
+  }) {
+    return GSForm._(
+      key: key,
+      sections: [
+        GSSection(
+          sectionTitle: null,
+          fields: fields,
+        ),
+      ],
+    );
+  }
+
+  /// Creates a form with multiple sections.
+  ///
+  /// Each section can have its own title and list of fields.
+  factory GSForm.multiSection(
+    BuildContext context, {
+    Key? key,
+    required List<GSSection> sections,
+  }) {
+    return GSForm._(
+      key: key,
       sections: sections,
     );
   }
 
-  GSForm.multiSection(BuildContext context, {Key? key, this.style, required this.sections}) : super(key: key) {
-    style ??= GSFormUtils.checkIfDarkModeEnabled(context)
-        ? style ?? GSFormStyle.multiSectionFormDefaultDarkStyle
-        : GSFormStyle.multiSectionFormDefaultStyle;
-    for (var element in sections) {
-      element.style = style;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: sections,
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: sections.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 24),
+      itemBuilder: (context, index) {
+        final section = sections[index];
+        return GSSection(
+          sectionTitle: section.sectionTitle,
+          fields: section.fields,
+        );
+      },
     );
   }
 
+  /// Validates all fields in the form.
+  ///
+  /// Returns `true` if all required fields have valid values.
+  /// Updates the status of each field to show validation errors.
   bool isValid() {
     bool isValid = true;
     for (var section in sections) {
       for (var field in section.fields) {
         if (field is GSField) {
           bool fieldValidation = (field.child as GSFieldCallBack).isValid();
-          field.model?.status = fieldValidation ? GSFieldStatusEnum.success : GSFieldStatusEnum.error;
+          field.model?.status =
+              fieldValidation ? GSFieldStatusEnum.success : GSFieldStatusEnum.error;
           isValid = isValid && fieldValidation;
           field.update();
         }
@@ -62,12 +92,15 @@ class GSForm extends StatelessWidget {
     return isValid;
   }
 
+  /// Collects all field values into a map.
+  ///
+  /// The map keys are the field tags, and values are the field values.
   Map<String, dynamic> onSubmit() {
     Map<String, dynamic> data = {};
     for (var section in sections) {
-      for (var filed in section.fields) {
-        if (filed is GSField) {
-          data[filed.model?.tag ?? ''] = (filed.child as GSFieldCallBack).getValue();
+      for (var field in section.fields) {
+        if (field is GSField) {
+          data[field.model?.tag ?? ''] = (field.child as GSFieldCallBack).getValue();
         }
       }
     }

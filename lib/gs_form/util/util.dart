@@ -1,60 +1,14 @@
 import 'dart:io';
 
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../core/form_style.dart';
-import '../enums/field_status.dart';
-import '../values/colors.dart';
-
 class GSFormUtils {
-  static bool checkIfDarkModeEnabled(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return theme.brightness == Brightness.dark;
-  }
-
-  static Decoration getFieldDecoration(GSFormStyle style, GSFieldStatusEnum? status, {double? borderWidth = 1.0}) {
-    Color backgroundColor;
-    Color borderColor;
-
-    switch (status) {
-      case GSFieldStatusEnum.error:
-        backgroundColor = GSFormColors.redOpacity;
-        borderColor = GSFormColors.red;
-        break;
-      case GSFieldStatusEnum.success:
-        backgroundColor = GSFormColors.greenOpacity;
-        borderColor = GSFormColors.green;
-        break;
-      case GSFieldStatusEnum.normal:
-        backgroundColor = style.backgroundFieldColor;
-        borderColor = style.fieldBorderColor;
-        break;
-      case GSFieldStatusEnum.disabled:
-        backgroundColor = style.backgroundFieldColorDisable;
-        borderColor = style.fieldBorderColor;
-        break;
-      default:
-        backgroundColor = GSFormColors.white;
-        borderColor = GSFormColors.white;
-    }
-    return ShapeDecoration(
-      color: backgroundColor,
-      shape: SmoothRectangleBorder(
-        side: BorderSide(color: borderColor, width: borderWidth ?? 1.0),
-        borderRadius: SmoothBorderRadius(
-          cornerRadius: style.fieldRadius,
-          cornerSmoothing: 1,
-        ),
-      ),
-    );
-  }
-
-  static showImagePickerBottomSheet(
+  /// Shows a themed bottom sheet for picking an image from camera or gallery.
+  static void showImagePickerBottomSheet(
     BuildContext context,
     void Function(File image) callback, {
     String? galleryName = 'Gallery',
@@ -62,6 +16,9 @@ class GSFormUtils {
     String? cameraAssets,
     String? galleryAssets,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -74,9 +31,9 @@ class GSFormUtils {
               SizedBox(
                 height: 130.0,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(16.0),
                       topRight: Radius.circular(16.0),
                     ),
@@ -97,20 +54,24 @@ class GSFormUtils {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               cameraAssets == null
-                                  ? const Icon(
+                                  ? Icon(
                                       Icons.camera,
                                       size: 40.0,
-                                      color: Colors.blue,
+                                      color: colorScheme.primary,
                                     )
                                   : SvgPicture.asset(
                                       cameraAssets,
                                       width: 40.0,
                                       height: 40.0,
+                                      colorFilter: ColorFilter.mode(
+                                        colorScheme.primary,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                               const SizedBox(height: 10.0),
                               Text(
                                 cameraName ?? 'Camera',
-                                style: GSFormStyle().titleTextStyle,
+                                style: theme.textTheme.titleMedium,
                               )
                             ],
                           ),
@@ -130,20 +91,24 @@ class GSFormUtils {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               galleryAssets == null
-                                  ? const Icon(
+                                  ? Icon(
                                       Icons.photo_library,
                                       size: 40.0,
-                                      color: Colors.blue,
+                                      color: colorScheme.primary,
                                     )
                                   : SvgPicture.asset(
                                       galleryAssets,
                                       width: 40.0,
                                       height: 40.0,
+                                      colorFilter: ColorFilter.mode(
+                                        colorScheme.primary,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                               const SizedBox(height: 10.0),
                               Text(
                                 galleryName ?? 'Gallery',
-                                style: GSFormStyle().titleTextStyle,
+                                style: theme.textTheme.titleMedium,
                               )
                             ],
                           ),
@@ -160,6 +125,7 @@ class GSFormUtils {
     );
   }
 
+  /// Picks an image from the specified source (camera or gallery).
   static Future<File?> pickImage(ImageSource imageSource) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
@@ -175,30 +141,38 @@ class GSFormUtils {
     return null;
   }
 
+  /// Returns true if the current locale uses RTL text direction.
   static bool isDirectionRTL(BuildContext context) {
     return Bidi.isRtlLanguage(Localizations.localeOf(context).languageCode);
   }
 }
 
+/// A text input formatter for bank card numbers.
+/// Formats the input as "0000 0000 0000 0000".
 class CardNumberFormatter extends TextInputFormatter {
   final sampleNumber = '0000 0000 0000 0000';
 
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     if (newValue.text.length > oldValue.text.length) {
       if (newValue.text.length > sampleNumber.length) {
         return oldValue;
       }
 
-      final lastEnteredLetter = newValue.text.substring(newValue.text.length - 1);
+      final lastEnteredLetter =
+          newValue.text.substring(newValue.text.length - 1);
       if (!RegExp(r'[0-9]').hasMatch(lastEnteredLetter)) {
         return oldValue;
       }
 
-      if (newValue.text.isNotEmpty && sampleNumber[newValue.text.length - 1] == ' ') {
+      if (newValue.text.isNotEmpty &&
+          sampleNumber[newValue.text.length - 1] == ' ') {
         return TextEditingValue(
-          text: '${oldValue.text} ${newValue.text.substring(newValue.text.length - 1)}',
-          selection: TextSelection.collapsed(offset: newValue.selection.end + 1),
+          text:
+              '${oldValue.text} ${newValue.text.substring(newValue.text.length - 1)}',
+          selection:
+              TextSelection.collapsed(offset: newValue.selection.end + 1),
         );
       }
     }
