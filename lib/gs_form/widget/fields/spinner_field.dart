@@ -23,7 +23,10 @@ class GSSpinnerField extends StatefulWidget implements GSFieldCallBack {
   @override
   bool isValid() {
     if (model.required != null && model.required!) {
-      if (returnedData?.id == -1 || returnedData == null) {
+      // Invalid if: null, id is -1 (hint), or empty name with id <= 0 (placeholder)
+      if (returnedData == null ||
+          returnedData?.id == -1 ||
+          (returnedData?.name.isEmpty == true && (returnedData?.id ?? -1) <= 0)) {
         return false;
       } else {
         return true;
