@@ -763,7 +763,9 @@ class _GSFieldState extends State<GSField> {
     widget.onUpdate = () {
       if (mounted) {
         if (widget.model?.status != GSFieldStatusEnum.disabled) {
-          // Just trigger rebuild without recreating child to preserve field state
+          // Recreate child with updated model (e.g., error status from validation)
+          // Child's didUpdateWidget will preserve its state (entered text, selections)
+          _fillChild();
           setState(() {});
         }
       }
