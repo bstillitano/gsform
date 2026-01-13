@@ -78,6 +78,7 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
     widget.context = context;
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
+    final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'time'}' : null;
 
     return InkWell(
       onTap: () {
@@ -90,7 +91,7 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
               : null,
           hintText: widget.model.hint,
           helperText: widget.model.helpMessage,
-          errorText: isError ? widget.model.errorMessage : null,
+          errorText: isError ? (widget.model.errorMessage ?? defaultErrorMessage) : null,
           border: const OutlineInputBorder(),
           suffixIcon: const Icon(Icons.access_time),
           prefixIcon: widget.model.prefixWidget,

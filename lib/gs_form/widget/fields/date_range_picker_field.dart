@@ -74,6 +74,7 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
     widget.context = context;
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
+    final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'date range'}' : null;
 
     return InkWell(
       onTap: () {
@@ -90,7 +91,7 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
               : null,
           hintText: widget.model.hint,
           helperText: widget.model.helpMessage,
-          errorText: isError ? widget.model.errorMessage : null,
+          errorText: isError ? (widget.model.errorMessage ?? defaultErrorMessage) : null,
           border: const OutlineInputBorder(),
           suffixIcon: const Icon(Icons.date_range),
           prefixIcon: widget.model.prefixWidget,

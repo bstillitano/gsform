@@ -74,6 +74,7 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
     widget.context = context;
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
+    final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'date'}' : null;
 
     return InkWell(
       onTap: () {
@@ -86,7 +87,7 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
               : null,
           hintText: widget.model.hint,
           helperText: widget.model.helpMessage,
-          errorText: isError ? widget.model.errorMessage : null,
+          errorText: isError ? (widget.model.errorMessage ?? defaultErrorMessage) : null,
           border: const OutlineInputBorder(),
           suffixIcon: const Icon(Icons.calendar_today),
           prefixIcon: widget.model.prefixWidget,
