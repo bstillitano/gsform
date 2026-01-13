@@ -969,6 +969,7 @@ class GSField extends StatefulWidget {
     Color? backgroundColor,
     String? clearButtonText,
     bool? showClearButton,
+    Uint8List? backgroundImageBytes,
     bool? readOnly,
     Function(Uint8List?)? onChanged,
   }) {
@@ -986,6 +987,7 @@ class GSField extends StatefulWidget {
       backgroundColor: backgroundColor,
       clearButtonText: clearButtonText,
       showClearButton: showClearButton,
+      backgroundImageBytes: backgroundImageBytes,
       enableReadOnly: readOnly,
     );
     onSignatureChange = onChanged;

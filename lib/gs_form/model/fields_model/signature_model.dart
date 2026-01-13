@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/enums/filed_type.dart';
 import 'package:gsform/gs_form/model/fields_model/field_model.dart';
@@ -9,6 +10,7 @@ class GSSignatureModel extends GSFieldModel {
   Color? backgroundColor;
   String? clearButtonText;
   bool? showClearButton;
+  Uint8List? backgroundImageBytes;
 
   GSSignatureModel({
     required super.tag,
@@ -18,6 +20,7 @@ class GSSignatureModel extends GSFieldModel {
     this.backgroundColor,
     this.clearButtonText,
     this.showClearButton,
+    this.backgroundImageBytes,
     super.title,
     super.errorMessage,
     super.helpMessage,

@@ -16,6 +16,7 @@ class GSSignatureField extends StatefulWidget implements GSFieldCallBack {
 
   final _SignaturePainterController _controller = _SignaturePainterController();
   Uint8List? signatureData;
+  ui.Image? _backgroundImage;
 
   @override
   bool isValid() {
@@ -36,7 +37,7 @@ class GSSignatureField extends StatefulWidget implements GSFieldCallBack {
   }
 
   Future<Uint8List?> exportSignature() async {
-    return await _controller.exportToPng();
+    return await _controller.exportToPng(backgroundImage: _backgroundImage);
   }
 
   void clear() {
@@ -49,10 +50,14 @@ class GSSignatureField extends StatefulWidget implements GSFieldCallBack {
 }
 
 class _GSSignatureFieldState extends State<GSSignatureField> {
+  ui.Image? _backgroundImage;
+  Size? _canvasSize;
+
   @override
   void initState() {
     super.initState();
     widget._controller.addListener(_onSignatureChanged);
+    _loadBackgroundImage();
   }
 
   @override
@@ -61,13 +66,28 @@ class _GSSignatureFieldState extends State<GSSignatureField> {
     super.dispose();
   }
 
+  Future<void> _loadBackgroundImage() async {
+    if (widget.model.backgroundImageBytes != null) {
+      final codec = await ui.instantiateImageCodec(widget.model.backgroundImageBytes!);
+      final frame = await codec.getNextFrame();
+      setState(() {
+        _backgroundImage = frame.image;
+        widget._backgroundImage = _backgroundImage;
+      });
+    }
+  }
+
   void _onSignatureChanged() {
     setState(() {});
     _exportAndNotify();
   }
 
   Future<void> _exportAndNotify() async {
-    final data = await widget._controller.exportToPng();
+    final data = await widget._controller.exportToPng(
+      backgroundImage: _backgroundImage,
+      width: _canvasSize?.width.toInt() ?? 400,
+      height: _canvasSize?.height.toInt() ?? 200,
+    );
     widget.signatureData = data;
     widget.onChanged?.call(data);
   }
@@ -81,68 +101,87 @@ class _GSSignatureFieldState extends State<GSSignatureField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final height = widget.model.height ?? 200.0;
     final penColor = widget.model.penColor ?? theme.colorScheme.onSurface;
     final backgroundColor = widget.model.backgroundColor ?? theme.colorScheme.surfaceContainerHighest;
     final penStrokeWidth = widget.model.penStrokeWidth ?? 2.0;
     final showClearButton = widget.model.showClearButton ?? true;
     final clearButtonText = widget.model.clearButtonText ?? 'Clear';
+    final height = widget.model.height ?? 200.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
+        SizedBox(
           height: height,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: theme.colorScheme.outline,
-              width: 1,
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(7),
-            child: GestureDetector(
-              onPanStart: widget.model.enableReadOnly == true
-                  ? null
-                  : (details) {
-                      widget._controller.startStroke(details.localPosition);
-                    },
-              onPanUpdate: widget.model.enableReadOnly == true
-                  ? null
-                  : (details) {
-                      widget._controller.updateStroke(details.localPosition);
-                    },
-              onPanEnd: widget.model.enableReadOnly == true
-                  ? null
-                  : (details) {
-                      widget._controller.endStroke();
-                    },
-              child: CustomPaint(
-                painter: _SignaturePainter(
-                  controller: widget._controller,
-                  penColor: penColor,
-                  strokeWidth: penStrokeWidth,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              _canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
+              return Container(
+                decoration: BoxDecoration(
+                  color: _backgroundImage == null ? backgroundColor : null,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: theme.colorScheme.outline,
+                    width: 1,
+                  ),
                 ),
-                size: Size.infinite,
-              ),
-            ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(7),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (_backgroundImage != null)
+                        RawImage(
+                          image: _backgroundImage,
+                          fit: BoxFit.cover,
+                        )
+                      else
+                        Container(color: backgroundColor),
+                      GestureDetector(
+                        onPanStart: widget.model.enableReadOnly == true
+                            ? null
+                            : (details) {
+                                widget._controller.startStroke(details.localPosition);
+                              },
+                        onPanUpdate: widget.model.enableReadOnly == true
+                            ? null
+                            : (details) {
+                                widget._controller.updateStroke(details.localPosition);
+                              },
+                        onPanEnd: widget.model.enableReadOnly == true
+                            ? null
+                            : (details) {
+                                widget._controller.endStroke();
+                              },
+                        child: CustomPaint(
+                          painter: _SignaturePainter(
+                            controller: widget._controller,
+                            penColor: penColor,
+                            strokeWidth: penStrokeWidth,
+                          ),
+                          size: Size.infinite,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
         if (showClearButton && widget.model.enableReadOnly != true)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton.icon(
-                  onPressed: widget._controller.hasSignature ? _onClear : null,
-                  icon: const Icon(Icons.clear, size: 18),
-                  label: Text(clearButtonText),
-                ),
-              ],
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: widget._controller.hasSignature ? _onClear : null,
+              icon: const Icon(Icons.clear, size: 14),
+              label: Text(clearButtonText, style: const TextStyle(fontSize: 12)),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
           ),
       ],
@@ -183,18 +222,35 @@ class _SignaturePainterController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Uint8List?> exportToPng({int width = 400, int height = 200}) async {
-    if (!hasSignature) return null;
+  Future<Uint8List?> exportToPng({
+    ui.Image? backgroundImage,
+    int width = 400,
+    int height = 200,
+  }) async {
+    if (!hasSignature && backgroundImage == null) return null;
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
+
+    // Draw background image if provided
+    if (backgroundImage != null) {
+      final srcRect = Rect.fromLTWH(
+        0,
+        0,
+        backgroundImage.width.toDouble(),
+        backgroundImage.height.toDouble(),
+      );
+      final dstRect = Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble());
+      canvas.drawImageRect(backgroundImage, srcRect, dstRect, Paint());
+    }
+
+    // Draw strokes
     final paint = Paint()
       ..color = Colors.black
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    // Draw all strokes
     for (final stroke in _strokes) {
       if (stroke.length > 1) {
         final path = Path();
