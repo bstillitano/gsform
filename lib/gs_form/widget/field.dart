@@ -746,7 +746,7 @@ class GSField extends StatefulWidget {
 class _GSFieldState extends State<GSField> {
   @override
   void didUpdateWidget(covariant GSField oldWidget) {
-    _fillChild();
+    // Don't recreate child on rebuild - preserve field state
     super.didUpdateWidget(oldWidget);
   }
 
