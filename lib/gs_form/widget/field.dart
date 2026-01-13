@@ -783,75 +783,163 @@ class _GSFieldState extends State<GSField> {
   void _fillChild() {
     switch (widget.model?.type) {
       case GSFieldTypeEnum.text:
-        widget.child = GSTextField(
-          widget.model as GSTextModel,
-          widget.onChange,
-        );
+        final oldText = widget.child;
+        final newText = GSTextField(widget.model as GSTextModel, widget.onChange);
+        if (oldText is GSTextField) {
+          newText.controller = oldText.controller;
+        }
+        widget.child = newText;
         break;
       case GSFieldTypeEnum.number:
-        widget.child = GSNumberField(widget.model as GSNumberModel);
+        final oldNumber = widget.child;
+        final newNumber = GSNumberField(widget.model as GSNumberModel);
+        if (oldNumber is GSNumberField) {
+          newNumber.controller = oldNumber.controller;
+        }
+        widget.child = newNumber;
         break;
       case GSFieldTypeEnum.textPlain:
-        widget.child = GSTextPlainField(
+        final oldTextPlain = widget.child;
+        final newTextPlain = GSTextPlainField(
           widget.model as GSTextPlainModel,
           widget.onChange,
         );
+        if (oldTextPlain is GSTextPlainField) {
+          newTextPlain.controller = oldTextPlain.controller;
+        }
+        widget.child = newTextPlain;
         break;
       case GSFieldTypeEnum.mobile:
-        widget.child = GSMobileField(widget.model as GSMobileModel);
+        final oldMobile = widget.child;
+        final newMobile = GSMobileField(widget.model as GSMobileModel);
+        if (oldMobile is GSMobileField) {
+          newMobile.controller = oldMobile.controller;
+        }
+        widget.child = newMobile;
         break;
       case GSFieldTypeEnum.password:
-        widget.child = GSPasswordField(widget.model as GSPasswordModel);
+        final oldPassword = widget.child;
+        final newPassword = GSPasswordField(widget.model as GSPasswordModel);
+        if (oldPassword is GSPasswordField) {
+          newPassword.controller = oldPassword.controller;
+          newPassword.obscured = oldPassword.obscured;
+        }
+        widget.child = newPassword;
         break;
       case GSFieldTypeEnum.date:
-        widget.child = GSDatePickerField(
+        final oldDate = widget.child;
+        final newDate = GSDatePickerField(
           widget.model as GSDatePickerModel,
           widget.onDateChange,
         );
+        if (oldDate is GSDatePickerField) {
+          newDate.selectedGregorianDate = oldDate.selectedGregorianDate;
+          newDate.selectedDateText = oldDate.selectedDateText;
+          newDate.isDateSelected = oldDate.isDateSelected;
+        }
+        widget.child = newDate;
         break;
       case GSFieldTypeEnum.dateRage:
-        widget.child = GSDateRangePickerField(
+        final oldDateRange = widget.child;
+        final newDateRange = GSDateRangePickerField(
           widget.model as GSDateRangePickerModel,
         );
+        if (oldDateRange is GSDateRangePickerField) {
+          newDateRange.selectedGregorianStartDate = oldDateRange.selectedGregorianStartDate;
+          newDateRange.selectedGregorianEndDate = oldDateRange.selectedGregorianEndDate;
+          newDateRange.selectedDateText = oldDateRange.selectedDateText;
+          newDateRange.isDateSelected = oldDateRange.isDateSelected;
+        }
+        widget.child = newDateRange;
         break;
       case GSFieldTypeEnum.time:
-        widget.child = GSTimePickerField(
+        final oldTime = widget.child;
+        final newTime = GSTimePickerField(
           widget.model as GSTimePickerModel,
           widget.onTimeChange,
         );
+        if (oldTime is GSTimePickerField) {
+          newTime.selectedTime = oldTime.selectedTime;
+          newTime.selectedTimeText = oldTime.selectedTimeText;
+          newTime.isTimeSelected = oldTime.isTimeSelected;
+        }
+        widget.child = newTime;
         break;
       case GSFieldTypeEnum.email:
-        widget.child = GSEmailField(widget.model as GSEmailModel);
+        final oldEmail = widget.child;
+        final newEmail = GSEmailField(widget.model as GSEmailModel);
+        if (oldEmail is GSEmailField) {
+          newEmail.controller = oldEmail.controller;
+        }
+        widget.child = newEmail;
         break;
       case GSFieldTypeEnum.price:
-        widget.child = GSPriceField(widget.model as GSPriceModel);
+        final oldPrice = widget.child;
+        final newPrice = GSPriceField(widget.model as GSPriceModel);
+        if (oldPrice is GSPriceField) {
+          newPrice.controller = oldPrice.controller;
+        }
+        widget.child = newPrice;
         break;
       case GSFieldTypeEnum.bankCard:
-        widget.child = GSBankCardField(widget.model as GSBankCardModel);
+        final oldBankCard = widget.child;
+        final newBankCard = GSBankCardField(widget.model as GSBankCardModel);
+        if (oldBankCard is GSBankCardField) {
+          newBankCard.controller = oldBankCard.controller;
+        }
+        widget.child = newBankCard;
         break;
       case GSFieldTypeEnum.spinner:
-        widget.child = GSSpinnerField(widget.model as GSSpinnerModel);
+        final oldSpinner = widget.child;
+        final newSpinner = GSSpinnerField(widget.model as GSSpinnerModel);
+        // Immediately transfer state before build cycle
+        if (oldSpinner is GSSpinnerField) {
+          newSpinner.returnedData = oldSpinner.returnedData;
+        }
+        widget.child = newSpinner;
         break;
       case GSFieldTypeEnum.radioGroup:
-        widget.child = GSRadioGroupField(widget.model as GSRadioModel);
+        final oldRadio = widget.child;
+        final newRadio = GSRadioGroupField(widget.model as GSRadioModel);
+        if (oldRadio is GSRadioGroupField) {
+          newRadio.returnedData = oldRadio.returnedData;
+          newRadio.filteredItems = oldRadio.filteredItems;
+          newRadio.keyword = oldRadio.keyword;
+        }
+        widget.child = newRadio;
         break;
       case GSFieldTypeEnum.checkList:
         widget.child = GSCheckListField(widget.model as GSCheckBoxModel);
         break;
       case GSFieldTypeEnum.imagePicker:
-        widget.child = GSImagePickerField(
+        final oldImagePicker = widget.child;
+        final newImagePicker = GSImagePickerField(
           widget.model as GSImagePickerModel,
           widget.onChange,
         );
+        if (oldImagePicker is GSImagePickerField) {
+          newImagePicker.croppedFilePath = oldImagePicker.croppedFilePath;
+        }
+        widget.child = newImagePicker;
         break;
       case GSFieldTypeEnum.qrScanner:
-        widget.child = GSQRScannerField(widget.model as GSQRScannerModel);
+        final oldQR = widget.child;
+        final newQR = GSQRScannerField(widget.model as GSQRScannerModel);
+        if (oldQR is GSQRScannerField) {
+          newQR.scannedValue = oldQR.scannedValue;
+        }
+        widget.child = newQR;
         break;
       case GSFieldTypeEnum.multiImagePicker:
-        widget.child = GSMultiImagePickerField(
+        final oldMultiImage = widget.child;
+        final newMultiImage = GSMultiImagePickerField(
           widget.model as GSMultiImagePickerModel,
           widget.onArrayChange,
         );
+        if (oldMultiImage is GSMultiImagePickerField) {
+          newMultiImage.croppedFilePaths = oldMultiImage.croppedFilePaths;
+        }
+        widget.child = newMultiImage;
         break;
       default:
         widget.child = const SizedBox.shrink();

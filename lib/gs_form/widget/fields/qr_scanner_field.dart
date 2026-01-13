@@ -8,14 +8,14 @@ class GSQRScannerField extends StatefulWidget implements GSFieldCallBack {
   final GSQRScannerModel model;
 
   GSQRScannerField(this.model, {super.key});
-  String? _scannedValue;
+  String? scannedValue;
 
   @override
   State<GSQRScannerField> createState() => _GSQRScannerFieldState();
 
   @override
   getValue() {
-    return _scannedValue;
+    return scannedValue;
   }
 
   @override
@@ -23,7 +23,7 @@ class GSQRScannerField extends StatefulWidget implements GSFieldCallBack {
     if (!(model.required ?? false)) {
       return true;
     } else {
-      return _scannedValue?.isNotEmpty ?? false;
+      return scannedValue?.isNotEmpty ?? false;
     }
   }
 }
@@ -32,12 +32,12 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
   @override
   void initState() {
     super.initState();
-    widget._scannedValue = null;
+    widget.scannedValue = null;
   }
 
   @override
   void didUpdateWidget(covariant GSQRScannerField oldWidget) {
-    widget._scannedValue = null;
+    widget.scannedValue = null;
     super.didUpdateWidget(oldWidget);
   }
 
@@ -52,7 +52,7 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
           context,
           QrScannerScreen(
             callback: (value) {
-              widget._scannedValue = value;
+              widget.scannedValue = value;
               setState(() {});
             },
           ),
@@ -69,8 +69,8 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
           prefixIcon: widget.model.prefixWidget,
         ),
         child: Text(
-          widget._scannedValue ?? widget.model.hint ?? 'Tap to scan',
-          style: widget._scannedValue != null
+          widget.scannedValue ?? widget.model.hint ?? 'Tap to scan',
+          style: widget.scannedValue != null
               ? null
               : theme.textTheme.bodyLarge?.copyWith(
                   color: theme.hintColor,

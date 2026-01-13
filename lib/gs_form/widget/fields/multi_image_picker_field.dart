@@ -13,7 +13,7 @@ class GSMultiImagePickerField extends StatefulWidget implements GSFieldCallBack 
   final Function(List<String>?)? onChanged;
 
   GSMultiImagePickerField(this.model, this.onChanged, {super.key});
-  List<String> _croppedFilePaths = [];
+  List<String> croppedFilePaths = [];
 
   @override
   State<GSMultiImagePickerField> createState() =>
@@ -21,7 +21,7 @@ class GSMultiImagePickerField extends StatefulWidget implements GSFieldCallBack 
 
   @override
   getValue() {
-    return _croppedFilePaths;
+    return croppedFilePaths;
   }
 
   @override
@@ -29,7 +29,7 @@ class GSMultiImagePickerField extends StatefulWidget implements GSFieldCallBack 
     if (!(model.required ?? false)) {
       return true;
     } else {
-      return (_croppedFilePaths).isNotEmpty;
+      return (croppedFilePaths).isNotEmpty;
     }
   }
 }
@@ -39,18 +39,18 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
   void initState() {
     super.initState();
     if ((widget.model.defaultImagePath ?? []).isNotEmpty) {
-      widget._croppedFilePaths.addAll(widget.model.defaultImagePath ?? []);
+      widget.croppedFilePaths.addAll(widget.model.defaultImagePath ?? []);
     } else {
-      widget._croppedFilePaths = [];
+      widget.croppedFilePaths = [];
     }
   }
 
   @override
   void didUpdateWidget(covariant GSMultiImagePickerField oldWidget) {
     if ((widget.model.defaultImagePath ?? []).isNotEmpty) {
-      widget._croppedFilePaths.addAll(widget.model.defaultImagePath ?? []);
+      widget.croppedFilePaths.addAll(widget.model.defaultImagePath ?? []);
     } else {
-      widget._croppedFilePaths = [];
+      widget.croppedFilePaths = [];
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -68,25 +68,25 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
           mainAxisSpacing: 10.0,
           crossAxisSpacing: 10.0,
         ),
-        itemCount: widget._croppedFilePaths.length + 1,
+        itemCount: widget.croppedFilePaths.length + 1,
         itemBuilder: (context, index) {
           return index == 0
               ? _SelectItem(
                   model: widget.model,
                   isEnable: _enableSelectImageButton(),
                   callBack: (imagePath) {
-                    widget._croppedFilePaths.add(imagePath);
+                    widget.croppedFilePaths.add(imagePath);
                     setState(() {});
-                    widget.onChanged?.call(widget._croppedFilePaths);
+                    widget.onChanged?.call(widget.croppedFilePaths);
                   },
                 )
               : _ImageBox(
-                  imagePath: widget._croppedFilePaths[index - 1],
+                  imagePath: widget.croppedFilePaths[index - 1],
                   onDelete: (value) {
-                    widget._croppedFilePaths
+                    widget.croppedFilePaths
                         .removeWhere((element) => element == value);
                     setState(() {});
-                    widget.onChanged?.call(widget._croppedFilePaths);
+                    widget.onChanged?.call(widget.croppedFilePaths);
                   },
                 );
         },
@@ -96,7 +96,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
 
   bool _enableSelectImageButton() {
     if (widget.model.maximumImageCount != null) {
-      if (widget._croppedFilePaths.length >= widget.model.maximumImageCount!) {
+      if (widget.croppedFilePaths.length >= widget.model.maximumImageCount!) {
         return false;
       } else {
         return true;

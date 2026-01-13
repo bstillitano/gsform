@@ -13,14 +13,14 @@ class GSImagePickerField extends StatefulWidget implements GSFieldCallBack {
   final Function(String?)? onChanged;
 
   GSImagePickerField(this.model, this.onChanged, {super.key});
-  String? _croppedFilePath;
+  String? croppedFilePath;
 
   @override
   State<GSImagePickerField> createState() => _GSImagePickerFieldState();
 
   @override
   getValue() {
-    return _croppedFilePath;
+    return croppedFilePath;
   }
 
   @override
@@ -28,7 +28,7 @@ class GSImagePickerField extends StatefulWidget implements GSFieldCallBack {
     if (!(model.required ?? false)) {
       return true;
     } else {
-      return _croppedFilePath != null;
+      return croppedFilePath != null;
     }
   }
 }
@@ -38,18 +38,18 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
   void initState() {
     super.initState();
     if (widget.model.value != null) {
-      widget._croppedFilePath = widget.model.value;
+      widget.croppedFilePath = widget.model.value;
     } else {
-      widget._croppedFilePath = null;
+      widget.croppedFilePath = null;
     }
   }
 
   @override
   void didUpdateWidget(covariant GSImagePickerField oldWidget) {
     if (widget.model.value != null) {
-      widget._croppedFilePath = widget.model.value;
+      widget.croppedFilePath = widget.model.value;
     } else {
-      widget._croppedFilePath = oldWidget._croppedFilePath;
+      widget.croppedFilePath = oldWidget.croppedFilePath;
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -104,13 +104,13 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
             ),
             borderRadius: BorderRadius.circular(10.0),
           ),
-          child: widget._croppedFilePath == null
+          child: widget.croppedFilePath == null
               ? _NormalView(model: widget.model)
               : _ImagePickedView(
-                  croppedFilePath: widget._croppedFilePath!,
+                  croppedFilePath: widget.croppedFilePath!,
                   model: widget.model,
                   onDeleteImage: () {
-                    widget._croppedFilePath = null;
+                    widget.croppedFilePath = null;
                     setState(() {});
                   },
                 ),
@@ -127,15 +127,15 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
       if (widget.model.maximumSizePerImageInBytes != null) {
         if (image.lengthSync() / 1000 <
             widget.model.maximumSizePerImageInBytes!) {
-          widget._croppedFilePath = image.path;
+          widget.croppedFilePath = image.path;
         } else {
           widget.model.onErrorSizeItem?.call();
         }
       } else {
-        widget._croppedFilePath = image.path;
+        widget.croppedFilePath = image.path;
       }
     }
-    widget.onChanged?.call(widget._croppedFilePath);
+    widget.onChanged?.call(widget.croppedFilePath);
   }
 
   Future<void> _cropImage(File image) async {
@@ -164,12 +164,12 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
         if (widget.model.maximumSizePerImageInBytes != null) {
           if (image.lengthSync() / 1000 <
               widget.model.maximumSizePerImageInBytes!) {
-            widget._croppedFilePath = image.path;
+            widget.croppedFilePath = image.path;
           } else {
             widget.model.onErrorSizeItem?.call();
           }
         } else {
-          widget._croppedFilePath = image.path;
+          widget.croppedFilePath = image.path;
         }
       });
     }
