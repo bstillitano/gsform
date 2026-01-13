@@ -64,8 +64,12 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
       widget.selectedTime = oldWidget.selectedTime;
       widget.selectedTimeText = oldWidget.selectedTimeText;
     }
-    widget.isTimeSelected = true;
-    _displayTime(widget.selectedTime!);
+    if (widget.selectedTime != null) {
+      widget.isTimeSelected = true;
+      _displayTime(widget.selectedTime!);
+    } else {
+      widget.isTimeSelected = false;
+    }
     super.didUpdateWidget(oldWidget);
   }
 
