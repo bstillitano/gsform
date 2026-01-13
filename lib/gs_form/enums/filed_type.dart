@@ -18,4 +18,6 @@ enum GSFieldTypeEnum {
   imagePicker,
   qrScanner,
   multiImagePicker,
+  stepper,
+  starRating,
 }

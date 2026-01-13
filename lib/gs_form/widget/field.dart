@@ -19,6 +19,7 @@ import 'package:gsform/gs_form/model/fields_model/price_model.dart';
 import 'package:gsform/gs_form/model/fields_model/qr_scanner_model.dart';
 import 'package:gsform/gs_form/model/fields_model/radio_model.dart';
 import 'package:gsform/gs_form/model/fields_model/spinner_model.dart';
+import 'package:gsform/gs_form/model/fields_model/stepper_model.dart';
 import 'package:gsform/gs_form/model/fields_model/text_filed_model.dart';
 import 'package:gsform/gs_form/model/fields_model/text_password_model.dart';
 import 'package:gsform/gs_form/model/fields_model/text_plain_model.dart';
@@ -40,6 +41,9 @@ import 'package:gsform/gs_form/widget/fields/text_field.dart';
 import 'package:gsform/gs_form/widget/fields/text_plain_field.dart';
 import 'package:gsform/gs_form/widget/fields/time_picker_field.dart';
 import 'package:gsform/gs_form/widget/fields/multi_image_picker_field.dart';
+import 'package:gsform/gs_form/widget/fields/stepper_field.dart';
+import 'package:gsform/gs_form/widget/fields/star_rating_field.dart';
+import 'package:gsform/gs_form/model/fields_model/star_rating_model.dart';
 import 'package:gsform/gs_form/enums/required_check_list_enum.dart';
 
 /// A form field widget that wraps various input types.
@@ -737,6 +741,86 @@ class GSField extends StatefulWidget {
     );
   }
 
+  GSField.stepper({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    dynamic value,
+    int? weight,
+    String? hint,
+    String? prefix,
+    String? suffix,
+    double? minValue,
+    double? maxValue,
+    double? step,
+    bool? allowDecimal,
+    bool? allowNegative,
+    bool? readOnly,
+    Function(String?)? onChanged,
+  }) {
+    model = GSStepperModel(
+      type: GSFieldTypeEnum.stepper,
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      value: value,
+      weight: weight,
+      hint: hint,
+      prefix: prefix,
+      suffix: suffix,
+      minValue: minValue,
+      maxValue: maxValue,
+      step: step,
+      allowDecimal: allowDecimal,
+      allowNegative: allowNegative,
+      enableReadOnly: readOnly,
+    );
+    onChange = onChanged;
+  }
+
+  GSField.starRating({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    dynamic value,
+    int? weight,
+    int maximumRate = 5,
+    double? starSize,
+    String? leftText,
+    String? rightText,
+    bool? readOnly,
+    Function(String?)? onChanged,
+  }) {
+    model = GSStarRatingModel(
+      type: GSFieldTypeEnum.starRating,
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      value: value,
+      weight: weight,
+      maximumRate: maximumRate,
+      starSize: starSize,
+      leftText: leftText,
+      rightText: rightText,
+      enableReadOnly: readOnly,
+    );
+    onChange = onChanged;
+  }
+
   //</editor-fold>
 
   @override
@@ -940,6 +1024,29 @@ class _GSFieldState extends State<GSField> {
           newMultiImage.croppedFilePaths = oldMultiImage.croppedFilePaths;
         }
         widget.child = newMultiImage;
+        break;
+      case GSFieldTypeEnum.stepper:
+        final oldStepper = widget.child;
+        final newStepper = GSStepperField(
+          widget.model as GSStepperModel,
+          widget.onChange,
+        );
+        if (oldStepper is GSStepperField) {
+          newStepper.controller = oldStepper.controller;
+          newStepper.currentValue = oldStepper.currentValue;
+        }
+        widget.child = newStepper;
+        break;
+      case GSFieldTypeEnum.starRating:
+        final oldStarRating = widget.child;
+        final newStarRating = GSStarRatingField(
+          widget.model as GSStarRatingModel,
+          widget.onChange,
+        );
+        if (oldStarRating is GSStarRatingField) {
+          newStarRating.currentRating = oldStarRating.currentRating;
+        }
+        widget.child = newStarRating;
         break;
       default:
         widget.child = const SizedBox.shrink();

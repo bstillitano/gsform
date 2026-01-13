@@ -29,6 +29,8 @@ export 'gs_form/model/fields_model/price_model.dart';
 export 'gs_form/model/fields_model/qr_scanner_model.dart';
 export 'gs_form/model/fields_model/radio_model.dart';
 export 'gs_form/model/fields_model/spinner_model.dart';
+export 'gs_form/model/fields_model/stepper_model.dart';
+export 'gs_form/model/fields_model/star_rating_model.dart';
 export 'gs_form/model/fields_model/text_filed_model.dart';
 export 'gs_form/model/fields_model/text_password_model.dart';
 export 'gs_form/model/fields_model/text_plain_model.dart';
