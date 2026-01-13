@@ -59,6 +59,7 @@ class _GSTextFieldState extends State<GSTextField> {
   Widget build(BuildContext context) {
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
+    final defaultErrorMessage = isRequired ? '${widget.model.title ?? 'This field'} is required' : null;
 
     return TextField(
       readOnly: widget.model.enableReadOnly ?? false,
@@ -81,7 +82,7 @@ class _GSTextFieldState extends State<GSTextField> {
             : null,
         hintText: widget.model.hint,
         helperText: widget.model.helpMessage,
-        errorText: isError ? widget.model.errorMessage : null,
+        errorText: isError ? (widget.model.errorMessage ?? defaultErrorMessage) : null,
         counterText: '',
         border: const OutlineInputBorder(),
         prefixIcon: widget.model.prefixWidget,

@@ -60,6 +60,7 @@ class _GSEmailFieldState extends State<GSEmailField> {
   Widget build(BuildContext context) {
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
+    final defaultErrorMessage = isRequired ? 'Valid email is required' : 'Please enter a valid email';
 
     return TextField(
       readOnly: widget.model.enableReadOnly ?? false,
@@ -79,7 +80,7 @@ class _GSEmailFieldState extends State<GSEmailField> {
             : null,
         hintText: widget.model.hint,
         helperText: widget.model.helpMessage,
-        errorText: isError ? widget.model.errorMessage : null,
+        errorText: isError ? (widget.model.errorMessage ?? defaultErrorMessage) : null,
         counterText: '',
         border: const OutlineInputBorder(),
         prefixIcon: widget.model.prefixWidget,

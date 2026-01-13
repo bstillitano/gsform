@@ -94,6 +94,7 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
   Widget build(BuildContext context) {
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
+    final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'value'}' : null;
 
     return DropdownButtonFormField<SpinnerDataModel>(
       value: widget.returnedData,
@@ -103,7 +104,7 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
             ? _buildLabel(widget.model.title!, isRequired)
             : null,
         helperText: widget.model.helpMessage,
-        errorText: isError ? widget.model.errorMessage : null,
+        errorText: isError ? (widget.model.errorMessage ?? defaultErrorMessage) : null,
         border: const OutlineInputBorder(),
         prefixIcon: widget.model.prefixWidget,
       ),

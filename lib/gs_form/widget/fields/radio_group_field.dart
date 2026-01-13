@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
+import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/data_model/radio_data_model.dart';
 import 'package:gsform/gs_form/model/fields_model/radio_model.dart';
 
@@ -56,6 +57,9 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isHorizontal = widget.model.scrollDirection == Axis.horizontal;
+    final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isRequired = widget.model.required ?? false;
+    final defaultErrorMessage = isRequired ? 'Please select an option' : null;
 
     widget.filteredItems = widget.model.items
         .where((i) => i.title.contains(widget.keyword) == true)
@@ -106,6 +110,16 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
               ? _buildHorizontalList(theme)
               : _buildVerticalList(theme),
         ),
+        if (isError)
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0, top: 8.0),
+            child: Text(
+              widget.model.errorMessage ?? defaultErrorMessage ?? '',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ),
       ],
     );
   }
