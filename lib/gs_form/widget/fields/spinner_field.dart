@@ -22,13 +22,16 @@ class GSSpinnerField extends StatefulWidget implements GSFieldCallBack {
 
   @override
   bool isValid() {
+    print('Spinner isValid check: tag=${model.tag}, returnedData=$returnedData, id=${returnedData?.id}, name=${returnedData?.name}');
     if (model.required != null && model.required!) {
       // Invalid if: null, id is -1 (hint), or empty name with id <= 0 (placeholder)
       if (returnedData == null ||
           returnedData?.id == -1 ||
           (returnedData?.name.isEmpty == true && (returnedData?.id ?? -1) <= 0)) {
+        print('Spinner isValid: INVALID');
         return false;
       } else {
+        print('Spinner isValid: VALID');
         return true;
       }
     } else {
@@ -71,8 +74,10 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
 
   @override
   void didUpdateWidget(covariant GSSpinnerField oldWidget) {
+    print('Spinner didUpdateWidget: tag=${widget.model.tag}, old=${oldWidget.returnedData?.name}, new=${widget.returnedData?.name}');
     // Preserve the old selection - don't reset returnedData
     widget.returnedData = oldWidget.returnedData;
+    print('Spinner didUpdateWidget AFTER: widget.returnedData=${widget.returnedData?.name}');
     super.didUpdateWidget(oldWidget);
   }
 
