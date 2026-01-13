@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:gsform/gsform.dart';
 
@@ -350,6 +352,64 @@ class MultiSectionForm extends StatefulWidget {
 
 class _MultiSectionFormState extends State<MultiSectionForm> {
   late GSForm form;
+  Uint8List? _sampleBackgroundImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateSampleImage();
+  }
+
+  Future<void> _generateSampleImage() async {
+    // Create a simple sample image to demonstrate scribble-on-image
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    const width = 400.0;
+    const height = 200.0;
+
+    // Draw a light gray background with grid lines
+    final bgPaint = Paint()..color = const Color(0xFFF5F5F5);
+    canvas.drawRect(const Rect.fromLTWH(0, 0, width, height), bgPaint);
+
+    // Draw grid lines
+    final gridPaint = Paint()
+      ..color = const Color(0xFFE0E0E0)
+      ..strokeWidth = 1;
+    for (double x = 0; x <= width; x += 20) {
+      canvas.drawLine(Offset(x, 0), Offset(x, height), gridPaint);
+    }
+    for (double y = 0; y <= height; y += 20) {
+      canvas.drawLine(Offset(0, y), Offset(width, y), gridPaint);
+    }
+
+    // Draw "SAMPLE DOCUMENT" text
+    final textPainter = TextPainter(
+      text: const TextSpan(
+        text: 'SAMPLE DOCUMENT',
+        style: TextStyle(
+          color: Color(0xFFBDBDBD),
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset((width - textPainter.width) / 2, (height - textPainter.height) / 2),
+    );
+
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(width.toInt(), height.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+
+    if (mounted && byteData != null) {
+      setState(() {
+        _sampleBackgroundImage = byteData.buffer.asUint8List();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -548,6 +608,16 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                         required: true,
                         errorMessage: "Signature is required",
                       ),
+                      if (_sampleBackgroundImage != null)
+                        GSField.signature(
+                          tag: "scribble_on_image",
+                          title: "Scribble on Image",
+                          weight: 12,
+                          height: 200,
+                          showClearButton: true,
+                          clearButtonText: "Clear",
+                          backgroundImageBytes: _sampleBackgroundImage,
+                        ),
                     ]),
                     GSSection(sectionTitle: "Number Inputs",
                     fields: [
