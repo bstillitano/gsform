@@ -17,12 +17,16 @@ class GSChipSelectModel extends GSFieldModel {
   List<ChipSelectItem> items;
   bool multiSelect;
   bool wrap;
+  bool searchable;
+  String? searchHint;
 
   GSChipSelectModel({
     required super.tag,
     required this.items,
     this.multiSelect = false,
     this.wrap = true,
+    this.searchable = false,
+    this.searchHint,
     super.title,
     super.errorMessage,
     super.helpMessage,

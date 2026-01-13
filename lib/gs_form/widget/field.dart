@@ -931,6 +931,8 @@ class GSField extends StatefulWidget {
     int? weight,
     bool multiSelect = false,
     bool wrap = true,
+    bool searchable = false,
+    String? searchHint,
     bool? readOnly,
     Function(List<ChipSelectItem>)? onChanged,
   }) {
@@ -945,6 +947,8 @@ class GSField extends StatefulWidget {
       weight: weight,
       multiSelect: multiSelect,
       wrap: wrap,
+      searchable: searchable,
+      searchHint: searchHint,
       enableReadOnly: readOnly,
     );
     onChipSelectChange = onChanged;
