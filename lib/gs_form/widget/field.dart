@@ -47,6 +47,13 @@ import 'package:gsform/gs_form/model/fields_model/star_rating_model.dart';
 import 'package:gsform/gs_form/widget/fields/button_group_field.dart';
 import 'package:gsform/gs_form/model/fields_model/button_group_model.dart';
 import 'package:gsform/gs_form/enums/required_check_list_enum.dart';
+import 'package:gsform/gs_form/widget/fields/slider_field.dart';
+import 'package:gsform/gs_form/model/fields_model/slider_model.dart';
+import 'package:gsform/gs_form/widget/fields/chip_select_field.dart';
+import 'package:gsform/gs_form/model/fields_model/chip_select_model.dart';
+import 'package:gsform/gs_form/widget/fields/signature_field.dart';
+import 'package:gsform/gs_form/model/fields_model/signature_model.dart';
+import 'dart:typed_data';
 
 /// A form field widget that wraps various input types.
 ///
@@ -71,6 +78,10 @@ class GSField extends StatefulWidget {
   Function(List<String>?)? onArrayChange;
   Function(DateTime?)? onDateChange;
   Function(TimeOfDay?)? onTimeChange;
+  Function(double)? onSliderChange;
+  Function(List<ChipSelectItem>)? onChipSelectChange;
+  Function(Uint8List?)? onSignatureChange;
+  Function(ButtonGroupItem?)? onButtonGroupChange;
 
   void update() {
     onUpdate?.call();
@@ -862,7 +873,118 @@ class GSField extends StatefulWidget {
       allowDeselect: allowDeselect,
       enableReadOnly: readOnly,
     );
-    onChange = onChanged != null ? (val) => onChanged(val as ButtonGroupItem?) : null;
+    onButtonGroupChange = onChanged;
+  }
+
+  GSField.slider({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    int? weight,
+    double? minValue,
+    double? maxValue,
+    double? step,
+    double? initialValue,
+    bool? showLabels,
+    bool? showValueField,
+    String? minLabel,
+    String? midLabel,
+    String? maxLabel,
+    bool? readOnly,
+    Function(double)? onChanged,
+  }) {
+    model = GSSliderModel(
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      weight: weight,
+      minValue: minValue,
+      maxValue: maxValue,
+      step: step,
+      initialValue: initialValue,
+      showLabels: showLabels,
+      showValueField: showValueField,
+      minLabel: minLabel,
+      midLabel: midLabel,
+      maxLabel: maxLabel,
+      enableReadOnly: readOnly,
+    );
+    onSliderChange = onChanged;
+  }
+
+  GSField.chipSelect({
+    super.key,
+    required String tag,
+    required List<ChipSelectItem> items,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    int? weight,
+    bool multiSelect = false,
+    bool wrap = true,
+    bool? readOnly,
+    Function(List<ChipSelectItem>)? onChanged,
+  }) {
+    model = GSChipSelectModel(
+      tag: tag,
+      items: items,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      weight: weight,
+      multiSelect: multiSelect,
+      wrap: wrap,
+      enableReadOnly: readOnly,
+    );
+    onChipSelectChange = onChanged;
+  }
+
+  GSField.signature({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    int? weight,
+    double? height,
+    Color? penColor,
+    double? penStrokeWidth,
+    Color? backgroundColor,
+    String? clearButtonText,
+    bool? showClearButton,
+    bool? readOnly,
+    Function(Uint8List?)? onChanged,
+  }) {
+    model = GSSignatureModel(
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      weight: weight,
+      height: height,
+      penColor: penColor,
+      penStrokeWidth: penStrokeWidth,
+      backgroundColor: backgroundColor,
+      clearButtonText: clearButtonText,
+      showClearButton: showClearButton,
+      enableReadOnly: readOnly,
+    );
+    onSignatureChange = onChanged;
   }
 
   //</editor-fold>
@@ -1099,14 +1221,45 @@ class _GSFieldState extends State<GSField> {
         final oldButtonGroup = widget.child;
         final newButtonGroup = GSButtonGroupField(
           widget.model as GSButtonGroupModel,
-          widget.onChange != null
-              ? (item) => widget.onChange!(item)
-              : null,
+          widget.onButtonGroupChange,
         );
         if (oldButtonGroup is GSButtonGroupField) {
           newButtonGroup.selectedIndex = oldButtonGroup.selectedIndex;
         }
         widget.child = newButtonGroup;
+        break;
+      case GSFieldTypeEnum.slider:
+        final oldSlider = widget.child;
+        final newSlider = GSSliderField(
+          model: widget.model as GSSliderModel,
+          onChanged: widget.onSliderChange,
+        );
+        if (oldSlider is GSSliderField) {
+          newSlider.currentValue = oldSlider.currentValue;
+        }
+        widget.child = newSlider;
+        break;
+      case GSFieldTypeEnum.chipSelect:
+        final oldChipSelect = widget.child;
+        final newChipSelect = GSChipSelectField(
+          model: widget.model as GSChipSelectModel,
+          onChanged: widget.onChipSelectChange,
+        );
+        if (oldChipSelect is GSChipSelectField) {
+          newChipSelect.selectedItems = oldChipSelect.selectedItems;
+        }
+        widget.child = newChipSelect;
+        break;
+      case GSFieldTypeEnum.signature:
+        final oldSignature = widget.child;
+        final newSignature = GSSignatureField(
+          model: widget.model as GSSignatureModel,
+          onChanged: widget.onSignatureChange,
+        );
+        if (oldSignature is GSSignatureField) {
+          newSignature.signatureData = oldSignature.signatureData;
+        }
+        widget.child = newSignature;
         break;
       default:
         widget.child = const SizedBox.shrink();

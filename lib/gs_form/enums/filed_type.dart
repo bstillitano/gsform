@@ -21,4 +21,7 @@ enum GSFieldTypeEnum {
   stepper,
   starRating,
   buttonGroup,
+  slider,
+  chipSelect,
+  signature,
 }
