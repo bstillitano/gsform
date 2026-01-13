@@ -43,7 +43,7 @@ class GSFormUtils {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pop(bc);
                             pickImage(ImageSource.camera).then((imageFile) {
                               if (imageFile != null) {
                                 callback(imageFile);
@@ -80,7 +80,7 @@ class GSFormUtils {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pop(bc);
                             pickImage(ImageSource.gallery).then((imageFile) {
                               if (imageFile != null) {
                                 callback(imageFile);
