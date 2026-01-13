@@ -17,19 +17,20 @@ class GSPriceField extends StatefulWidget implements GSFieldCallBack {
 
   @override
   getValue() {
-    return controller!.text.replaceAll(',', '');
+    return (controller?.text ?? '').replaceAll(',', '');
   }
 
   @override
   bool isValid() {
+    final text = controller?.text ?? '';
     if (model.validateRegEx == null) {
       if (!(model.required ?? false)) {
         return true;
       } else {
-        return controller!.text.isNotEmpty;
+        return text.isNotEmpty;
       }
     } else {
-      return model.validateRegEx!.hasMatch(controller!.text);
+      return model.validateRegEx!.hasMatch(text);
     }
   }
 

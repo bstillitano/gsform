@@ -16,21 +16,22 @@ class GSEmailField extends StatefulWidget implements GSFieldCallBack {
 
   @override
   getValue() {
-    return controller!.text;
+    return controller?.text ?? '';
   }
 
   @override
   bool isValid() {
+    final text = controller?.text ?? '';
     if (model.validateRegEx == null) {
-      if (controller!.text.isNotEmpty) {
-        return RegExp(GSConstant.emailRegEx).hasMatch(controller!.text);
+      if (text.isNotEmpty) {
+        return RegExp(GSConstant.emailRegEx).hasMatch(text);
       }
       if (!(model.required ?? false)) {
         return true;
       }
-      return controller!.text.isNotEmpty;
+      return text.isNotEmpty;
     }
-    return model.validateRegEx!.hasMatch(controller!.text);
+    return model.validateRegEx!.hasMatch(text);
   }
 }
 
