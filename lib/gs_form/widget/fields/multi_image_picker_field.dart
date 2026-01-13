@@ -57,9 +57,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: GridView.builder(
+    return GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -90,8 +88,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
                   },
                 );
         },
-      ),
-    );
+      );
   }
 
   bool _enableSelectImageButton() {
@@ -123,56 +120,57 @@ class _SelectItem extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Material(
-      color: Colors.transparent,
-      child: AbsorbPointer(
-        absorbing: !isEnable,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            border: Border.all(color: colorScheme.outline, width: 1),
-          ),
-          height: 90,
-          width: 90,
-          child: InkWell(
-            customBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
+    return SizedBox.expand(
+      child: Material(
+        color: Colors.transparent,
+        child: AbsorbPointer(
+          absorbing: !isEnable,
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              border: Border.all(color: colorScheme.outline, width: 1),
             ),
-            onTap: () {
-              if (model.imageSource == GSImageSource.both) {
-                GSFormUtils.showImagePickerBottomSheet(
-                  cameraName: model.cameraPopupTitle,
-                  galleryName: model.galleryPopupTitle,
-                  cameraAssets: model.cameraPopupIcon,
-                  galleryAssets: model.galleryPopupIcon,
-                  context,
-                  (image) async {
-                    _fillImagePath(context, image);
-                  },
-                );
-              } else if (model.imageSource == GSImageSource.camera) {
-                GSFormUtils.pickImage(ImageSource.camera).then(
-                  (imageFile) {
-                    if (imageFile != null) {
-                      _fillImagePath(context, imageFile);
-                    }
-                  },
-                );
-              } else {
-                GSFormUtils.pickImage(ImageSource.gallery).then(
-                  (imageFile) {
-                    if (imageFile != null) {
-                      _fillImagePath(context, imageFile);
-                    }
-                  },
-                );
-              }
-            },
-            child: Container(
-              color: isEnable
-                  ? Colors.transparent
-                  : theme.hintColor.withValues(alpha: 0.3),
-              child: model.iconWidget,
+            child: InkWell(
+              customBorder: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              onTap: () {
+                if (model.imageSource == GSImageSource.both) {
+                  GSFormUtils.showImagePickerBottomSheet(
+                    cameraName: model.cameraPopupTitle,
+                    galleryName: model.galleryPopupTitle,
+                    cameraAssets: model.cameraPopupIcon,
+                    galleryAssets: model.galleryPopupIcon,
+                    context,
+                    (image) async {
+                      _fillImagePath(context, image);
+                    },
+                  );
+                } else if (model.imageSource == GSImageSource.camera) {
+                  GSFormUtils.pickImage(ImageSource.camera).then(
+                    (imageFile) {
+                      if (imageFile != null) {
+                        _fillImagePath(context, imageFile);
+                      }
+                    },
+                  );
+                } else {
+                  GSFormUtils.pickImage(ImageSource.gallery).then(
+                    (imageFile) {
+                      if (imageFile != null) {
+                        _fillImagePath(context, imageFile);
+                      }
+                    },
+                  );
+                }
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [model.iconWidget],
+              ),
             ),
           ),
         ),
