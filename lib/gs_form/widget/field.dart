@@ -44,6 +44,8 @@ import 'package:gsform/gs_form/widget/fields/multi_image_picker_field.dart';
 import 'package:gsform/gs_form/widget/fields/stepper_field.dart';
 import 'package:gsform/gs_form/widget/fields/star_rating_field.dart';
 import 'package:gsform/gs_form/model/fields_model/star_rating_model.dart';
+import 'package:gsform/gs_form/widget/fields/button_group_field.dart';
+import 'package:gsform/gs_form/model/fields_model/button_group_model.dart';
 import 'package:gsform/gs_form/enums/required_check_list_enum.dart';
 
 /// A form field widget that wraps various input types.
@@ -502,6 +504,11 @@ class GSField extends StatefulWidget {
     bool? showCounter,
     String? hint,
     bool? readOnly,
+    bool? allowDecimal,
+    bool? allowNegative,
+    double? minValue,
+    double? maxValue,
+    Function(String?)? onChanged,
   }) {
     model = GSNumberModel(
       type: GSFieldTypeEnum.number,
@@ -519,7 +526,12 @@ class GSField extends StatefulWidget {
       hint: hint,
       showCounter: showCounter,
       enableReadOnly: readOnly,
+      allowDecimal: allowDecimal,
+      allowNegative: allowNegative,
+      minValue: minValue,
+      maxValue: maxValue,
     );
+    onChange = onChanged;
   }
 
   GSField.datePicker({
@@ -821,6 +833,38 @@ class GSField extends StatefulWidget {
     onChange = onChanged;
   }
 
+  GSField.buttonGroup({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    String? value,
+    int? weight,
+    required List<ButtonGroupItem> items,
+    bool allowDeselect = false,
+    bool? readOnly,
+    Function(ButtonGroupItem?)? onChanged,
+  }) {
+    model = GSButtonGroupModel(
+      type: GSFieldTypeEnum.buttonGroup,
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      value: value,
+      weight: weight,
+      items: items,
+      allowDeselect: allowDeselect,
+      enableReadOnly: readOnly,
+    );
+    onChange = onChanged != null ? (val) => onChanged(val as ButtonGroupItem?) : null;
+  }
+
   //</editor-fold>
 
   @override
@@ -876,7 +920,10 @@ class _GSFieldState extends State<GSField> {
         break;
       case GSFieldTypeEnum.number:
         final oldNumber = widget.child;
-        final newNumber = GSNumberField(widget.model as GSNumberModel);
+        final newNumber = GSNumberField(
+          widget.model as GSNumberModel,
+          widget.onChange,
+        );
         if (oldNumber is GSNumberField) {
           newNumber.controller = oldNumber.controller;
         }
@@ -1047,6 +1094,19 @@ class _GSFieldState extends State<GSField> {
           newStarRating.currentRating = oldStarRating.currentRating;
         }
         widget.child = newStarRating;
+        break;
+      case GSFieldTypeEnum.buttonGroup:
+        final oldButtonGroup = widget.child;
+        final newButtonGroup = GSButtonGroupField(
+          widget.model as GSButtonGroupModel,
+          widget.onChange != null
+              ? (item) => widget.onChange!(item)
+              : null,
+        );
+        if (oldButtonGroup is GSButtonGroupField) {
+          newButtonGroup.selectedIndex = oldButtonGroup.selectedIndex;
+        }
+        widget.child = newButtonGroup;
         break;
       default:
         widget.child = const SizedBox.shrink();

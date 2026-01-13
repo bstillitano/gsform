@@ -5,6 +5,10 @@ class GSNumberModel extends GSFieldModel {
   int? maxLength;
   String? hint;
   bool? showCounter;
+  bool? allowDecimal;
+  bool? allowNegative;
+  double? minValue;
+  double? maxValue;
 
   GSNumberModel(
       {type,
@@ -25,7 +29,11 @@ class GSNumberModel extends GSFieldModel {
       onTap,
       this.showCounter,
       this.maxLength,
-      this.hint})
+      this.hint,
+      this.allowDecimal,
+      this.allowNegative,
+      this.minValue,
+      this.maxValue})
       : super(
           type: type,
           tag: tag,

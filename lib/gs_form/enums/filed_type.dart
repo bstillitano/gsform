@@ -20,4 +20,5 @@ enum GSFieldTypeEnum {
   multiImagePicker,
   stepper,
   starRating,
+  buttonGroup,
 }
