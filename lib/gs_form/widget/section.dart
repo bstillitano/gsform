@@ -73,7 +73,7 @@ class GSSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (sectionTitle != null)
+        if (sectionTitle != null && sectionTitle!.isNotEmpty)
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 4, bottom: 12),
             child: Text(
