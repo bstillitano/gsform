@@ -70,24 +70,28 @@ class _GSStarRatingFieldState extends State<GSStarRatingField> {
             padding: const EdgeInsets.only(bottom: 8),
             child: _buildLabel(widget.model.title!, isRequired, theme),
           ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(maxRate, (index) {
-            final starIndex = index + 1;
-            return GestureDetector(
-              onTap: widget.model.enableReadOnly == true
-                  ? null
-                  : () => _setRating(starIndex),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(
-                  index < widget.currentRating ? Icons.star : Icons.star_border,
-                  color: Colors.amber,
-                  size: starSize,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(maxRate, (index) {
+              final starIndex = index + 1;
+              return GestureDetector(
+                onTap: widget.model.enableReadOnly == true
+                    ? null
+                    : () => _setRating(starIndex),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    index < widget.currentRating ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                    size: starSize,
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
         if (widget.model.leftText?.isNotEmpty == true ||
             widget.model.rightText?.isNotEmpty == true)
