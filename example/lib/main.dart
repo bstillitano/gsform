@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gsform/gsform.dart';
 
 void main() {
@@ -31,6 +32,11 @@ class _MyAppState extends State<MyApp> {
       themeMode: _themeMode,
       locale: const Locale('en', 'US'),
       supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
@@ -764,6 +770,28 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                           maxLine: 3,
                           required: false,
                           prefixWidget: const Icon(Icons.location_on),
+                        ),
+                      ],
+                    ),
+                    GSSection(
+                      sectionTitle: 'Rich Text',
+                      fields: [
+                        GSField.richText(
+                          tag: 'notes',
+                          title: 'Notes',
+                          weight: 12,
+                          hint: 'Enter formatted notes...',
+                          height: 200,
+                          showToolbar: true,
+                        ),
+                        GSField.richText(
+                          tag: 'description',
+                          title: 'Description (Required)',
+                          weight: 12,
+                          hint: 'Enter a description...',
+                          height: 150,
+                          required: true,
+                          errorMessage: 'Description is required',
                         ),
                       ],
                     ),

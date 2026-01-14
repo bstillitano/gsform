@@ -4,6 +4,7 @@ enum GSFieldTypeEnum {
   password,
   text,
   textPlain,
+  richText,
   spinner,
   date,
   dateRage,

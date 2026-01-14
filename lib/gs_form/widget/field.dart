@@ -53,6 +53,8 @@ import 'package:gsform/gs_form/widget/fields/chip_select_field.dart';
 import 'package:gsform/gs_form/model/fields_model/chip_select_model.dart';
 import 'package:gsform/gs_form/widget/fields/signature_field.dart';
 import 'package:gsform/gs_form/model/fields_model/signature_model.dart';
+import 'package:gsform/gs_form/widget/fields/rich_text_field.dart';
+import 'package:gsform/gs_form/model/fields_model/rich_text_model.dart';
 import 'dart:typed_data';
 
 /// A form field widget that wraps various input types.
@@ -993,6 +995,40 @@ class GSField extends StatefulWidget {
     onSignatureChange = onChanged;
   }
 
+  GSField.richText({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    String? value,
+    int? weight,
+    String? hint,
+    double? height,
+    bool? showToolbar,
+    bool? readOnly,
+    Function(String?)? onChanged,
+  }) {
+    model = GSRichTextModel(
+      type: GSFieldTypeEnum.richText,
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      value: value,
+      weight: weight,
+      hint: hint,
+      height: height,
+      showToolbar: showToolbar,
+      enableReadOnly: readOnly,
+    );
+    onChange = onChanged;
+  }
+
   //</editor-fold>
 
   @override
@@ -1266,6 +1302,17 @@ class _GSFieldState extends State<GSField> {
           newSignature.signatureData = oldSignature.signatureData;
         }
         widget.child = newSignature;
+        break;
+      case GSFieldTypeEnum.richText:
+        final oldRichText = widget.child;
+        final newRichText = GSRichTextField(
+          widget.model as GSRichTextModel,
+          widget.onChange,
+        );
+        if (oldRichText is GSRichTextField) {
+          newRichText.controller = oldRichText.controller;
+        }
+        widget.child = newRichText;
         break;
       default:
         widget.child = const SizedBox.shrink();

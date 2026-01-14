@@ -35,6 +35,7 @@ export 'gs_form/model/fields_model/button_group_model.dart';
 export 'gs_form/model/fields_model/slider_model.dart';
 export 'gs_form/model/fields_model/chip_select_model.dart';
 export 'gs_form/model/fields_model/signature_model.dart';
+export 'gs_form/model/fields_model/rich_text_model.dart';
 export 'gs_form/model/fields_model/text_filed_model.dart';
 export 'gs_form/model/fields_model/text_password_model.dart';
 export 'gs_form/model/fields_model/text_plain_model.dart';
