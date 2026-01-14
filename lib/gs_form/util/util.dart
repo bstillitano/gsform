@@ -42,13 +42,13 @@ class GSFormUtils {
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: () {
+                          onTap: () async {
                             Navigator.pop(bc);
-                            pickImage(ImageSource.camera).then((imageFile) {
-                              if (imageFile != null) {
-                                callback(imageFile);
-                              }
-                            });
+                            await Future.delayed(const Duration(milliseconds: 300));
+                            final imageFile = await pickImage(ImageSource.camera);
+                            if (imageFile != null) {
+                              callback(imageFile);
+                            }
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -79,13 +79,13 @@ class GSFormUtils {
                       ),
                       Expanded(
                         child: InkWell(
-                          onTap: () {
+                          onTap: () async {
                             Navigator.pop(bc);
-                            pickImage(ImageSource.gallery).then((imageFile) {
-                              if (imageFile != null) {
-                                callback(imageFile);
-                              }
-                            });
+                            await Future.delayed(const Duration(milliseconds: 300));
+                            final imageFile = await pickImage(ImageSource.gallery);
+                            if (imageFile != null) {
+                              callback(imageFile);
+                            }
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
