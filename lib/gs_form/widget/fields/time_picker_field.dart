@@ -11,7 +11,7 @@ class GSTimePickerField extends StatefulWidget implements GSFieldCallBack {
   String? selectedTimeText;
   bool isTimeSelected = false;
   TimeOfDay? selectedTime;
-  late BuildContext context;
+  BuildContext? context;
 
   GSTimePickerField(this.model, this.onChanged, {super.key}) {
     selectedTimeText = model.hint ?? 'Select a time';
@@ -22,7 +22,7 @@ class GSTimePickerField extends StatefulWidget implements GSFieldCallBack {
 
   @override
   getValue() {
-    return _provideData(context);
+    return _provideData();
   }
 
   @override
@@ -34,14 +34,19 @@ class GSTimePickerField extends StatefulWidget implements GSFieldCallBack {
     }
   }
 
-  TimeDataModel? _provideData(BuildContext context) {
-    return selectedTime == null
-        ? null
-        : TimeDataModel(
-            displayTime: selectedTime!.format(context),
-            hour: selectedTime!.hour,
-            minute: selectedTime!.minute,
-          );
+  TimeDataModel? _provideData() {
+    if (selectedTime == null) return null;
+
+    // Format time manually to avoid dependency on context
+    String hour = selectedTime!.hour.toString().padLeft(2, '0');
+    String minute = selectedTime!.minute.toString().padLeft(2, '0');
+    String displayTime = '$hour:$minute';
+
+    return TimeDataModel(
+      displayTime: displayTime,
+      hour: selectedTime!.hour,
+      minute: selectedTime!.minute,
+    );
   }
 }
 
@@ -121,7 +126,7 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
 
   Future<void> _openTimePicker() async {
     var picked = await showTimePicker(
-      context: widget.context,
+      context: context,
       initialTime: widget.selectedTime ?? TimeOfDay.now(),
       initialEntryMode: TimePickerEntryMode.dial,
       useRootNavigator: false,

@@ -12,7 +12,7 @@ class GSDateRangePickerField extends StatefulWidget implements GSFieldCallBack {
 
   DateTime? selectedGregorianStartDate;
   DateTime? selectedGregorianEndDate;
-  late BuildContext context;
+  BuildContext? context;
 
   late DateTime gregorianInitialStartDate;
   late DateTime gregorianInitialEndDate;
@@ -127,7 +127,7 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
 
   Future<void> _openGregorianDateRangePicker() async {
     var picked = await showDateRangePicker(
-      context: widget.context,
+      context: context,
       initialEntryMode: DatePickerEntryMode.calendar,
       initialDateRange: DateTimeRange(
         start: widget.gregorianInitialStartDate,

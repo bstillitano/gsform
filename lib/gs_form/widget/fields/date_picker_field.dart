@@ -11,7 +11,7 @@ class GSDatePickerField extends StatefulWidget implements GSFieldCallBack {
 
   String selectedDateText = '';
   DateTime? selectedGregorianDate;
-  late BuildContext context;
+  BuildContext? context;
 
   late DateTime gregorianInitialDate;
   late DateTime gregorianAvailableFrom;
@@ -165,7 +165,7 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
 
   Future<void> _openGregorianPicker() async {
     DateTime? picked = await showDatePicker(
-      context: widget.context,
+      context: context,
       initialDate: widget.gregorianInitialDate,
       firstDate: widget.gregorianAvailableFrom,
       lastDate: widget.gregorianAvailableTo,
