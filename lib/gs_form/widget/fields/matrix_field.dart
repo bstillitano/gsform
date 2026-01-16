@@ -45,10 +45,9 @@ class GSMatrixField extends StatefulWidget implements GSFieldCallBack {
 }
 
 class _GSMatrixFieldState extends State<GSMatrixField> {
-  static const double _cellSize = 60.0;
+  static const double _cellWidth = 80.0;
+  static const double _cellHeight = 60.0;
   static const double _rowHeaderWidth = 140.0;
-  static const double _columnHeaderHeight = 70.0;
-  static const double _likelihoodHeaderHeight = 40.0;
 
   @override
   Widget build(BuildContext context) {
@@ -147,72 +146,76 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
     final rows = widget.model.uniqueRows;
     final borderColor = Theme.of(context).dividerColor;
 
-    // Calculate total header height (Likelihood header + column headers + border pixels)
-    final totalHeaderHeight = _likelihoodHeaderHeight + _columnHeaderHeight + 2;
-
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: borderColor),
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-          // Fixed left column: corner cell (Severity) + row headers
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Corner cell with Severity label and description
-              _buildCornerCell(context, totalHeaderHeight),
-              // Row headers
-              ...rows.map((row) => _buildRowHeader(context, row)),
-            ],
-          ),
-
-          // Scrollable right section: Likelihood header + column headers + cells
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Likelihood header row (spans all columns)
-                  _buildLikelihoodHeader(context, columns.length),
-                  // Column headers row
-                  SizedBox(
-                    height: _columnHeaderHeight + 2, // +2 to match corner cell offset
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: columns.map((col) => _buildColumnHeader(context, col)).toList(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top section: Corner + Likelihood header + Column headers
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Corner cell (fixed)
+                _buildCornerCell(context),
+                // Scrollable: Likelihood + column headers
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Likelihood header (full width, auto height)
+                        _buildLikelihoodHeader(context, columns.length),
+                        // Column headers row (auto height)
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: columns.map((col) => _buildColumnHeader(context, col)).toList(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  // Cell rows
-                  ...rows.map((row) => SizedBox(
-                        height: _cellSize,
+                ),
+              ],
+            ),
+          ),
+          // Data rows: each row is IntrinsicHeight to sync heights
+          ...rows.map((row) => IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Fixed row header
+                    _buildRowHeader(context, row),
+                    // Scrollable cells
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: columns.map((col) => _buildCell(context, row, col, isReadOnly)).toList(),
                         ),
-                      )),
-                ],
-              ),
-            ),
-          ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
         ],
-        ),
       ),
     );
   }
 
   /// Corner cell containing Severity label and description
-  Widget _buildCornerCell(BuildContext context, double height) {
+  Widget _buildCornerCell(BuildContext context) {
     final labelColor = Theme.of(context).colorScheme.onSurface;
     final descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final borderColor = Theme.of(context).dividerColor;
 
     return Container(
       width: _rowHeaderWidth,
-      height: height,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border(
@@ -240,8 +243,6 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
                 fontWeight: FontWeight.normal,
                 color: descriptionColor,
               ),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ],
@@ -255,8 +256,8 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
     final borderColor = Theme.of(context).dividerColor;
 
     return Container(
-      width: columnCount * _cellSize,
-      height: _likelihoodHeaderHeight,
+      width: columnCount * _cellWidth,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: borderColor),
@@ -265,6 +266,7 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
       child: Center(
         child: Text(
           widget.model.likelihoodLabel,
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -280,7 +282,7 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
     final borderColor = Theme.of(context).dividerColor;
 
     return Container(
-      width: _cellSize,
+      width: _cellWidth,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       decoration: BoxDecoration(
         border: Border(
@@ -292,10 +294,8 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
         child: Text(
           column.label,
           textAlign: TextAlign.center,
-          maxLines: 4,
-          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: FontWeight.w500,
             color: textColor,
           ),
@@ -310,7 +310,7 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
 
     return Container(
       width: _rowHeaderWidth,
-      height: _cellSize,
+      constraints: BoxConstraints(minHeight: _cellHeight),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         border: Border(
@@ -323,10 +323,8 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
         child: Text(
           row.label,
           textAlign: TextAlign.left,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: FontWeight.w500,
             color: textColor,
           ),
@@ -338,14 +336,13 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
   Widget _buildCell(BuildContext context, MatrixRow row, MatrixColumn column, bool isReadOnly) {
     final cell = widget.model.findCell(column.xid, row.yid);
     if (cell == null) {
-      return SizedBox(width: _cellSize);
+      return SizedBox(width: _cellWidth);
     }
 
     final isSelected = widget.selectedXId == cell.xid &&
         widget.selectedYId == cell.yid;
     final backgroundColor = _parseHexColor(cell.xyColor);
     final textColor = _getContrastColor(backgroundColor);
-    final borderColor = Theme.of(context).dividerColor;
 
     // Use surface color for cell gaps (matches section/card background)
     final surfaceColor = Theme.of(context).colorScheme.surface;
@@ -353,7 +350,8 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
     return GestureDetector(
       onTap: isReadOnly ? null : () => _selectCell(cell),
       child: Container(
-        width: _cellSize,
+        width: _cellWidth,
+        constraints: BoxConstraints(minHeight: _cellHeight),
         decoration: BoxDecoration(
           color: backgroundColor,
           border: isSelected
@@ -362,15 +360,13 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
         ),
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(2),
+            padding: const EdgeInsets.all(4),
             child: Text(
               cell.xyName,
               textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: textColor,
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
