@@ -19,6 +19,8 @@ class GSChipSelectModel extends GSFieldModel {
   bool wrap;
   bool searchable;
   String? searchHint;
+  bool enableFullScreenSearch;
+  String? fullScreenSearchTitle;
 
   GSChipSelectModel({
     required super.tag,
@@ -27,6 +29,8 @@ class GSChipSelectModel extends GSFieldModel {
     this.wrap = true,
     this.searchable = false,
     this.searchHint,
+    this.enableFullScreenSearch = false,
+    this.fullScreenSearchTitle,
     super.title,
     super.errorMessage,
     super.helpMessage,

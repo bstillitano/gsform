@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
 import 'package:gsform/gs_form/model/fields_model/chip_select_model.dart';
+import 'package:gsform/gs_form/widget/fields/chip_select_search_page.dart';
 
 class GSChipSelectField extends StatefulWidget implements GSFieldCallBack {
   final GSChipSelectModel model;
@@ -86,6 +87,96 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
 
   @override
   Widget build(BuildContext context) {
+    // Full-screen search mode
+    if (widget.model.enableFullScreenSearch) {
+      return _buildFullScreenSearchMode(context);
+    }
+
+    // Existing inline mode
+    return _buildInlineMode(context);
+  }
+
+  Widget _buildFullScreenSearchMode(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Tappable search field
+        GestureDetector(
+          onTap: widget.model.enableReadOnly == true
+              ? null
+              : () => _openFullScreenSearch(context),
+          child: AbsorbPointer(
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: widget.model.searchHint ?? 'Search',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Selected items as chips
+        if (widget.selectedItems.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: widget.selectedItems.map((item) =>
+              FilterChip(
+                label: Text(item.label),
+                selected: true,
+                onSelected: widget.model.enableReadOnly == true
+                    ? null
+                    : (_) => _deselectItem(item),
+                selectedColor: theme.colorScheme.primaryContainer,
+                checkmarkColor: theme.colorScheme.primary,
+                labelStyle: TextStyle(
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ).toList(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _openFullScreenSearch(BuildContext context) async {
+    final result = await Navigator.push<List<ChipSelectItem>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChipSelectSearchPage(
+          title: widget.model.fullScreenSearchTitle ?? 'Select',
+          items: widget.model.items,
+          multiSelect: widget.model.multiSelect,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _updateSelectedItems();
+      });
+      widget.onChanged?.call(widget.selectedItems);
+    }
+  }
+
+  void _deselectItem(ChipSelectItem item) {
+    if (widget.model.enableReadOnly == true) return;
+
+    setState(() {
+      item.isSelected = false;
+      _updateSelectedItems();
+    });
+    widget.onChanged?.call(widget.selectedItems);
+  }
+
+  Widget _buildInlineMode(BuildContext context) {
     final theme = Theme.of(context);
 
     final chips = _filteredItems.map((item) {

@@ -938,6 +938,8 @@ class GSField extends StatefulWidget {
     bool wrap = true,
     bool searchable = false,
     String? searchHint,
+    bool enableFullScreenSearch = false,
+    String? fullScreenSearchTitle,
     bool? readOnly,
     Function(List<ChipSelectItem>)? onChanged,
   }) {
@@ -954,6 +956,8 @@ class GSField extends StatefulWidget {
       wrap: wrap,
       searchable: searchable,
       searchHint: searchHint,
+      enableFullScreenSearch: enableFullScreenSearch,
+      fullScreenSearchTitle: fullScreenSearchTitle,
       enableReadOnly: readOnly,
     );
     onChipSelectChange = onChanged;
