@@ -14,21 +14,28 @@ class GSSignatureField extends StatefulWidget implements GSFieldCallBack {
     this.onChanged,
   });
 
-  final _SignaturePainterController _controller = _SignaturePainterController();
-  Uint8List? signatureData;
-  ui.Image? _backgroundImage;
+  // State reference for accessing controller from widget interface
+  _GSSignatureFieldState? _state;
+
+  // Getter/setter for signatureData that delegates to state
+  Uint8List? get signatureData => _state?.signatureData;
+  set signatureData(Uint8List? value) {
+    if (_state != null) {
+      _state!.signatureData = value;
+    }
+  }
 
   @override
   bool isValid() {
     if (model.required == true) {
-      return _controller.hasSignature;
+      return _state?._controller.hasSignature ?? false;
     }
     return true;
   }
 
   @override
   dynamic getValue() {
-    return signatureData;
+    return _state?.signatureData;
   }
 
   @override
@@ -37,12 +44,12 @@ class GSSignatureField extends StatefulWidget implements GSFieldCallBack {
   }
 
   Future<Uint8List?> exportSignature() async {
-    return await _controller.exportToPng(backgroundImage: _backgroundImage);
+    return await _state?._controller.exportToPng(backgroundImage: _state?._backgroundImage);
   }
 
   void clear() {
-    _controller.clear();
-    signatureData = null;
+    _state?._controller.clear();
+    _state?.signatureData = null;
   }
 
   @override
@@ -50,19 +57,31 @@ class GSSignatureField extends StatefulWidget implements GSFieldCallBack {
 }
 
 class _GSSignatureFieldState extends State<GSSignatureField> {
+  // Controller is now held in State to persist across widget rebuilds
+  final _SignaturePainterController _controller = _SignaturePainterController();
   ui.Image? _backgroundImage;
   Size? _canvasSize;
+  Uint8List? signatureData;
 
   @override
   void initState() {
     super.initState();
-    widget._controller.addListener(_onSignatureChanged);
+    widget._state = this;
+    _controller.addListener(_onSignatureChanged);
     _loadBackgroundImage();
   }
 
   @override
+  void didUpdateWidget(GSSignatureField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update state reference when widget is rebuilt
+    widget._state = this;
+  }
+
+  @override
   void dispose() {
-    widget._controller.removeListener(_onSignatureChanged);
+    _controller.removeListener(_onSignatureChanged);
+    _controller.dispose();
     super.dispose();
   }
 
@@ -72,7 +91,6 @@ class _GSSignatureFieldState extends State<GSSignatureField> {
       final frame = await codec.getNextFrame();
       setState(() {
         _backgroundImage = frame.image;
-        widget._backgroundImage = _backgroundImage;
       });
     }
   }
@@ -83,18 +101,18 @@ class _GSSignatureFieldState extends State<GSSignatureField> {
   }
 
   Future<void> _exportAndNotify() async {
-    final data = await widget._controller.exportToPng(
+    final data = await _controller.exportToPng(
       backgroundImage: _backgroundImage,
       width: _canvasSize?.width.toInt() ?? 400,
       height: _canvasSize?.height.toInt() ?? 200,
     );
-    widget.signatureData = data;
+    signatureData = data;
     widget.onChanged?.call(data);
   }
 
   void _onClear() {
-    widget._controller.clear();
-    widget.signatureData = null;
+    _controller.clear();
+    signatureData = null;
     widget.onChanged?.call(null);
   }
 
@@ -142,21 +160,21 @@ class _GSSignatureFieldState extends State<GSSignatureField> {
                         onPanStart: widget.model.enableReadOnly == true
                             ? null
                             : (details) {
-                                widget._controller.startStroke(details.localPosition);
+                                _controller.startStroke(details.localPosition);
                               },
                         onPanUpdate: widget.model.enableReadOnly == true
                             ? null
                             : (details) {
-                                widget._controller.updateStroke(details.localPosition);
+                                _controller.updateStroke(details.localPosition);
                               },
                         onPanEnd: widget.model.enableReadOnly == true
                             ? null
                             : (details) {
-                                widget._controller.endStroke();
+                                _controller.endStroke();
                               },
                         child: CustomPaint(
                           painter: _SignaturePainter(
-                            controller: widget._controller,
+                            controller: _controller,
                             penColor: penColor,
                             strokeWidth: penStrokeWidth,
                           ),
@@ -174,7 +192,7 @@ class _GSSignatureFieldState extends State<GSSignatureField> {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
-              onPressed: widget._controller.hasSignature ? _onClear : null,
+              onPressed: _controller.hasSignature ? _onClear : null,
               icon: const Icon(Icons.clear, size: 14),
               label: Text(clearButtonText, style: const TextStyle(fontSize: 12)),
               style: TextButton.styleFrom(
