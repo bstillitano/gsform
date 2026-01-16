@@ -55,6 +55,8 @@ import 'package:gsform/gs_form/widget/fields/signature_field.dart';
 import 'package:gsform/gs_form/model/fields_model/signature_model.dart';
 import 'package:gsform/gs_form/widget/fields/rich_text_field.dart';
 import 'package:gsform/gs_form/model/fields_model/rich_text_model.dart';
+import 'package:gsform/gs_form/widget/fields/matrix_field.dart';
+import 'package:gsform/gs_form/model/fields_model/matrix_model.dart';
 import 'dart:typed_data';
 
 /// A form field widget that wraps various input types.
@@ -84,6 +86,7 @@ class GSField extends StatefulWidget {
   Function(List<ChipSelectItem>)? onChipSelectChange;
   Function(Uint8List?)? onSignatureChange;
   Function(ButtonGroupItem?)? onButtonGroupChange;
+  Function(int xid, int yid, int xyId, int score)? onMatrixCellSelected;
 
   void update() {
     onUpdate?.call();
@@ -1029,6 +1032,50 @@ class GSField extends StatefulWidget {
     onChange = onChanged;
   }
 
+  GSField.matrix({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    bool? required,
+    GSFieldStatusEnum? status,
+    int? weight,
+    required List<Map<String, dynamic>> matrixCells,
+    int? selectedXId,
+    int? selectedYId,
+    String? severityLabel,
+    String? likelihoodLabel,
+    String? severityDescription,
+    String? likelihoodDescription,
+    bool? readOnly,
+    Function(int xid, int yid, int xyId, int score)? onCellSelected,
+  }) {
+    // Convert raw JSON maps to MatrixCell objects
+    final cells = matrixCells.map((json) => MatrixCell.fromJson(json)).toList();
+
+    model = GSMatrixModel(
+      type: GSFieldTypeEnum.matrix,
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      required: required,
+      status: status,
+      weight: weight,
+      cells: cells,
+      selectedXId: selectedXId,
+      selectedYId: selectedYId,
+      severityLabel: severityLabel ?? 'Severity',
+      likelihoodLabel: likelihoodLabel ?? 'Likelihood',
+      severityDescription: severityDescription,
+      likelihoodDescription: likelihoodDescription,
+      enableReadOnly: readOnly,
+      onCellSelected: onCellSelected,
+    );
+    onMatrixCellSelected = onCellSelected;
+  }
+
   //</editor-fold>
 
   @override
@@ -1313,6 +1360,16 @@ class _GSFieldState extends State<GSField> {
           newRichText.controller = oldRichText.controller;
         }
         widget.child = newRichText;
+        break;
+      case GSFieldTypeEnum.matrix:
+        final oldMatrix = widget.child;
+        final newMatrix = GSMatrixField(widget.model as GSMatrixModel);
+        if (oldMatrix is GSMatrixField) {
+          newMatrix.selectedXId = oldMatrix.selectedXId;
+          newMatrix.selectedYId = oldMatrix.selectedYId;
+          newMatrix.selectedCellId = oldMatrix.selectedCellId;
+        }
+        widget.child = newMatrix;
         break;
       default:
         widget.child = const SizedBox.shrink();

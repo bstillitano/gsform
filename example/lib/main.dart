@@ -434,6 +434,102 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                 child: form = GSForm.multiSection(
                   context,
                   sections: [
+                    GSSection(
+                      sectionTitle: "Risk Matrix",
+                      fields: [
+                        GSField.matrix(
+                          tag: 'risk_matrix',
+                          title: 'Risk Assessment Matrix',
+                          required: true,
+                          errorMessage: 'Please select a risk level',
+                          severityLabel: 'Severity',
+                          severityDescription: 'How severely could it hurt someone or how ill could it make someone',
+                          likelihoodLabel: 'Likelihood',
+                          likelihoodDescription: 'How likely is it that someone could be harmed',
+                          matrixCells: [
+                            // 4x4 test matrix
+                            // Column 1 (Minor)
+                            {'xid': 1, 'yid': 1, 'xyId': 101, 'x': 'Minor', 'y': 'Rare', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '1'},
+                            {'xid': 1, 'yid': 2, 'xyId': 102, 'x': 'Minor', 'y': 'Unlikely', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '2'},
+                            {'xid': 1, 'yid': 3, 'xyId': 103, 'x': 'Minor', 'y': 'Possible', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '3'},
+                            {'xid': 1, 'yid': 4, 'xyId': 104, 'x': 'Minor', 'y': 'Likely', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '4'},
+                            // Column 2 (Moderate)
+                            {'xid': 2, 'yid': 1, 'xyId': 201, 'x': 'Moderate', 'y': 'Rare', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '2'},
+                            {'xid': 2, 'yid': 2, 'xyId': 202, 'x': 'Moderate', 'y': 'Unlikely', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '4'},
+                            {'xid': 2, 'yid': 3, 'xyId': 203, 'x': 'Moderate', 'y': 'Possible', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '6'},
+                            {'xid': 2, 'yid': 4, 'xyId': 204, 'x': 'Moderate', 'y': 'Likely', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '8'},
+                            // Column 3 (Major)
+                            {'xid': 3, 'yid': 1, 'xyId': 301, 'x': 'Major', 'y': 'Rare', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '3'},
+                            {'xid': 3, 'yid': 2, 'xyId': 302, 'x': 'Major', 'y': 'Unlikely', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '6'},
+                            {'xid': 3, 'yid': 3, 'xyId': 303, 'x': 'Major', 'y': 'Possible', 'xyName': 'Critical', 'xyColor': '#ee3300', 'xy': '9'},
+                            {'xid': 3, 'yid': 4, 'xyId': 304, 'x': 'Major', 'y': 'Likely', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '12'},
+                            // Column 4 (Catastrophic)
+                            {'xid': 4, 'yid': 1, 'xyId': 401, 'x': 'Catastrophic', 'y': 'Rare', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '4'},
+                            {'xid': 4, 'yid': 2, 'xyId': 402, 'x': 'Catastrophic', 'y': 'Unlikely', 'xyName': 'Critical', 'xyColor': '#ee3300', 'xy': '8'},
+                            {'xid': 4, 'yid': 3, 'xyId': 403, 'x': 'Catastrophic', 'y': 'Possible', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '12'},
+                            {'xid': 4, 'yid': 4, 'xyId': 404, 'x': 'Catastrophic', 'y': 'Likely', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '16'},
+                          ],
+                          onCellSelected: (xid, yid, xyId, score) {
+                            debugPrint('Risk Matrix Selected: xid=$xid, yid=$yid, xyId=$xyId, score=$score');
+                          },
+                        ),
+                      ],
+                    ),
+                    GSSection(
+                      sectionTitle: "Wide Risk Matrix (Scrollable)",
+                      fields: [
+                        GSField.matrix(
+                          tag: 'risk_matrix_wide',
+                          title: 'Extended Risk Assessment',
+                          helpMessage: 'Scroll horizontally to see all columns',
+                          required: false,
+                          severityLabel: 'Consequence',
+                          likelihoodLabel: 'Probability',
+                          matrixCells: [
+                            // 6 columns x 5 rows = 30 cells
+                            // Column 1 (Negligible)
+                            {'xid': 1, 'yid': 1, 'xyId': 1001, 'x': 'Negligible', 'y': 'Almost Certain', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '5'},
+                            {'xid': 1, 'yid': 2, 'xyId': 1002, 'x': 'Negligible', 'y': 'Likely', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '4'},
+                            {'xid': 1, 'yid': 3, 'xyId': 1003, 'x': 'Negligible', 'y': 'Possible', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '3'},
+                            {'xid': 1, 'yid': 4, 'xyId': 1004, 'x': 'Negligible', 'y': 'Unlikely', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '2'},
+                            {'xid': 1, 'yid': 5, 'xyId': 1005, 'x': 'Negligible', 'y': 'Rare', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '1'},
+                            // Column 2 (Minor)
+                            {'xid': 2, 'yid': 1, 'xyId': 2001, 'x': 'Minor', 'y': 'Almost Certain', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '10'},
+                            {'xid': 2, 'yid': 2, 'xyId': 2002, 'x': 'Minor', 'y': 'Likely', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '8'},
+                            {'xid': 2, 'yid': 3, 'xyId': 2003, 'x': 'Minor', 'y': 'Possible', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '6'},
+                            {'xid': 2, 'yid': 4, 'xyId': 2004, 'x': 'Minor', 'y': 'Unlikely', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '4'},
+                            {'xid': 2, 'yid': 5, 'xyId': 2005, 'x': 'Minor', 'y': 'Rare', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '2'},
+                            // Column 3 (Moderate)
+                            {'xid': 3, 'yid': 1, 'xyId': 3001, 'x': 'Moderate', 'y': 'Almost Certain', 'xyName': 'Critical', 'xyColor': '#ee3300', 'xy': '15'},
+                            {'xid': 3, 'yid': 2, 'xyId': 3002, 'x': 'Moderate', 'y': 'Likely', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '12'},
+                            {'xid': 3, 'yid': 3, 'xyId': 3003, 'x': 'Moderate', 'y': 'Possible', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '9'},
+                            {'xid': 3, 'yid': 4, 'xyId': 3004, 'x': 'Moderate', 'y': 'Unlikely', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '6'},
+                            {'xid': 3, 'yid': 5, 'xyId': 3005, 'x': 'Moderate', 'y': 'Rare', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '3'},
+                            // Column 4 (Major)
+                            {'xid': 4, 'yid': 1, 'xyId': 4001, 'x': 'Major', 'y': 'Almost Certain', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '20'},
+                            {'xid': 4, 'yid': 2, 'xyId': 4002, 'x': 'Major', 'y': 'Likely', 'xyName': 'Critical', 'xyColor': '#ee3300', 'xy': '16'},
+                            {'xid': 4, 'yid': 3, 'xyId': 4003, 'x': 'Major', 'y': 'Possible', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '12'},
+                            {'xid': 4, 'yid': 4, 'xyId': 4004, 'x': 'Major', 'y': 'Unlikely', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '8'},
+                            {'xid': 4, 'yid': 5, 'xyId': 4005, 'x': 'Major', 'y': 'Rare', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '4'},
+                            // Column 5 (Severe)
+                            {'xid': 5, 'yid': 1, 'xyId': 5001, 'x': 'Severe', 'y': 'Almost Certain', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '25'},
+                            {'xid': 5, 'yid': 2, 'xyId': 5002, 'x': 'Severe', 'y': 'Likely', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '20'},
+                            {'xid': 5, 'yid': 3, 'xyId': 5003, 'x': 'Severe', 'y': 'Possible', 'xyName': 'Critical', 'xyColor': '#ee3300', 'xy': '15'},
+                            {'xid': 5, 'yid': 4, 'xyId': 5004, 'x': 'Severe', 'y': 'Unlikely', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '10'},
+                            {'xid': 5, 'yid': 5, 'xyId': 5005, 'x': 'Severe', 'y': 'Rare', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '5'},
+                            // Column 6 (Catastrophic)
+                            {'xid': 6, 'yid': 1, 'xyId': 6001, 'x': 'Catastrophic', 'y': 'Almost Certain', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '30'},
+                            {'xid': 6, 'yid': 2, 'xyId': 6002, 'x': 'Catastrophic', 'y': 'Likely', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '24'},
+                            {'xid': 6, 'yid': 3, 'xyId': 6003, 'x': 'Catastrophic', 'y': 'Possible', 'xyName': 'Critical', 'xyColor': '#633636', 'xy': '18'},
+                            {'xid': 6, 'yid': 4, 'xyId': 6004, 'x': 'Catastrophic', 'y': 'Unlikely', 'xyName': 'Critical', 'xyColor': '#ee3300', 'xy': '12'},
+                            {'xid': 6, 'yid': 5, 'xyId': 6005, 'x': 'Catastrophic', 'y': 'Rare', 'xyName': 'High', 'xyColor': '#ff9933', 'xy': '6'},
+                          ],
+                          onCellSelected: (xid, yid, xyId, score) {
+                            debugPrint('Wide Matrix Selected: xid=$xid, yid=$yid, xyId=$xyId, score=$score');
+                          },
+                        ),
+                      ],
+                    ),
                     GSSection(sectionTitle: "Star Rating",
                     fields: [
                       GSField.starRating(
