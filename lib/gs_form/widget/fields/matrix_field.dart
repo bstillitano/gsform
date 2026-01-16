@@ -45,11 +45,11 @@ class GSMatrixField extends StatefulWidget implements GSFieldCallBack {
 }
 
 class _GSMatrixFieldState extends State<GSMatrixField> {
-  static const double _cellWidth = 90.0;
-  static const double _cellHeight = 70.0;
-  static const double _rowHeaderWidth = 150.0;
-  static const double _columnHeaderHeight = 90.0;
-  static const double _likelihoodHeaderHeight = 50.0;
+  static const double _cellWidth = 70.0;
+  static const double _cellHeight = 55.0;
+  static const double _rowHeaderWidth = 110.0;
+  static const double _columnHeaderHeight = 70.0;
+  static const double _likelihoodHeaderHeight = 35.0;
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +255,7 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
           widget.model.likelihoodLabel,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             color: labelColor,
           ),
@@ -283,7 +283,7 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
           column.label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 8,
             fontWeight: FontWeight.w500,
             color: textColor,
           ),
@@ -299,7 +299,7 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
     return Container(
       width: _rowHeaderWidth,
       height: _cellHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         border: Border(
           right: BorderSide(color: borderColor),
@@ -312,7 +312,7 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
           row.label,
           textAlign: TextAlign.left,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 9,
             fontWeight: FontWeight.w500,
             color: textColor,
           ),
@@ -348,13 +348,13 @@ class _GSMatrixFieldState extends State<GSMatrixField> {
         ),
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(2),
             child: Text(
               cell.xyName,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: textColor,
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
