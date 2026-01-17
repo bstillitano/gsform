@@ -99,7 +99,7 @@ class _ChipSelectSearchPageState extends State<ChipSelectSearchPage> {
                 final item = _filteredItems[index];
                 return ListTile(
                   leading: item.isSelected
-                    ? Icon(Icons.check, color: theme.primaryColor)
+                    ? Icon(Icons.check, color: theme.colorScheme.primary)
                     : const SizedBox(width: 24),
                   title: Text(item.label),
                   onTap: () => _onItemTapped(item),
