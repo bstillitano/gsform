@@ -49,6 +49,14 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
   }
 
   @override
+  void didUpdateWidget(GSChipSelectField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update selected items when model items change from parent
+    // This handles cases where parent rebuilds with new selection state
+    _updateSelectedItems();
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();

@@ -64,6 +64,28 @@ class _GSSliderFieldState extends State<GSSliderField> {
     widget.textController.text = _formatValue(_value);
   }
 
+  @override
+  void didUpdateWidget(GSSliderField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update values when props change from parent
+    if (oldWidget.model.initialValue != widget.model.initialValue ||
+        oldWidget.model.minValue != widget.model.minValue ||
+        oldWidget.model.maxValue != widget.model.maxValue ||
+        oldWidget.model.step != widget.model.step) {
+      _min = widget.model.minValue ?? 0;
+      _max = widget.model.maxValue ?? 100;
+      _step = widget.model.step ?? 1;
+
+      // Only update value if initialValue changed
+      if (oldWidget.model.initialValue != widget.model.initialValue) {
+        _value = widget.model.initialValue ?? _min;
+        _value = _value.clamp(_min, _max);
+        widget.currentValue = _value;
+        widget.textController.text = _formatValue(_value);
+      }
+    }
+  }
+
   String _formatValue(double value) {
     if (_step >= 1 || _step == 0) {
       return value.toInt().toString();
