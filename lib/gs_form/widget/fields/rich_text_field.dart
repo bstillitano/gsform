@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
 import 'package:gsform/gs_form/enums/field_status.dart';
 import 'package:gsform/gs_form/model/fields_model/rich_text_model.dart';
@@ -76,13 +77,19 @@ class _GSRichTextFieldState extends State<GSRichTextField> {
       widget.controller?.document = Document()..insert(0, html);
       return;
     }
-    // For HTML, we'll need to parse it - for now just strip tags as a fallback
-    // The proper way would be to use a HTML to Delta converter
-    final plainText = html
-        .replaceAll(RegExp(r'<br\s*/?>'), '\n')
-        .replaceAll(RegExp(r'<[^>]*>'), '');
-    if (plainText.isNotEmpty) {
-      widget.controller?.document = Document()..insert(0, plainText);
+    // Convert HTML to Delta format to preserve rich text formatting
+    try {
+      final delta = HtmlToDelta().convert(html);
+      widget.controller?.document = Document.fromDelta(delta);
+    } catch (e) {
+      // Fallback to plain text if HTML parsing fails
+      debugPrint('Error parsing HTML to Delta: $e');
+      final plainText = html
+          .replaceAll(RegExp(r'<br\s*/?>'), '\n')
+          .replaceAll(RegExp(r'<[^>]*>'), '');
+      if (plainText.isNotEmpty) {
+        widget.controller?.document = Document()..insert(0, plainText);
+      }
     }
   }
 

@@ -57,6 +57,8 @@ import 'package:gsform/gs_form/widget/fields/rich_text_field.dart';
 import 'package:gsform/gs_form/model/fields_model/rich_text_model.dart';
 import 'package:gsform/gs_form/widget/fields/matrix_field.dart';
 import 'package:gsform/gs_form/model/fields_model/matrix_model.dart';
+import 'package:gsform/gs_form/widget/fields/switch_field.dart';
+import 'package:gsform/gs_form/model/fields_model/switch_model.dart';
 import 'dart:typed_data';
 
 /// A form field widget that wraps various input types.
@@ -87,6 +89,7 @@ class GSField extends StatefulWidget {
   Function(Uint8List?)? onSignatureChange;
   Function(ButtonGroupItem?)? onButtonGroupChange;
   Function(int xid, int yid, int xyId, int score)? onMatrixCellSelected;
+  Function(bool)? onSwitchChange;
 
   void update() {
     onUpdate?.call();
@@ -1080,6 +1083,35 @@ class GSField extends StatefulWidget {
     onMatrixCellSelected = onCellSelected;
   }
 
+  GSField.switchField({
+    super.key,
+    required String tag,
+    String? title,
+    String? errorMessage,
+    String? helpMessage,
+    Widget? prefixWidget,
+    Widget? postfixWidget,
+    GSFieldStatusEnum? status,
+    bool? value,
+    int? weight,
+    Function(bool)? onChanged,
+  }) {
+    model = GSSwitchModel(
+      type: GSFieldTypeEnum.switchField,
+      tag: tag,
+      title: title,
+      errorMessage: errorMessage,
+      helpMessage: helpMessage,
+      prefixWidget: prefixWidget,
+      postfixWidget: postfixWidget,
+      status: status,
+      value: value ?? false,
+      weight: weight,
+      onChange: onChanged,
+    );
+    onSwitchChange = onChanged;
+  }
+
   //</editor-fold>
 
   @override
@@ -1374,6 +1406,14 @@ class _GSFieldState extends State<GSField> {
           newMatrix.selectedCellId = oldMatrix.selectedCellId;
         }
         widget.child = newMatrix;
+        break;
+      case GSFieldTypeEnum.switchField:
+        final oldSwitch = widget.child;
+        final newSwitch = GSSwitchField(widget.model as GSSwitchModel);
+        if (oldSwitch is GSSwitchField) {
+          newSwitch.currentValue = oldSwitch.currentValue;
+        }
+        widget.child = newSwitch;
         break;
       default:
         widget.child = const SizedBox.shrink();

@@ -26,4 +26,5 @@ enum GSFieldTypeEnum {
   chipSelect,
   signature,
   matrix,
+  switchField,
 }

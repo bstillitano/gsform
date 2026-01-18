@@ -123,16 +123,7 @@ class _GSButtonGroupFieldState extends State<GSButtonGroupField> {
 
   Widget _buildButton(
       ButtonGroupItem item, bool isSelected, int index, ThemeData theme) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isSelected ? Colors.green : Colors.transparent,
-          width: isSelected ? 2 : 0,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: FilledButton(
+    return FilledButton(
         onPressed: widget.model.enableReadOnly == true
             ? null
             : () => _selectItem(index),
@@ -148,11 +139,10 @@ class _GSButtonGroupFieldState extends State<GSButtonGroupField> {
             borderRadius: BorderRadius.circular(18),
           ),
         ),
-        child: Text(
-          item.label,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-        ),
+      child: Text(
+        item.label,
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

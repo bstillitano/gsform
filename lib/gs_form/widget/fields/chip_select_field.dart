@@ -106,12 +106,14 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
 
   Widget _buildFullScreenSearchMode(BuildContext context) {
     final theme = Theme.of(context);
+    final hasTitle = widget.model.title != null && widget.model.title!.isNotEmpty;
+    final isRequired = widget.model.required == true;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Tappable search field
+        // Tappable search field with floating label
         GestureDetector(
           onTap: widget.model.enableReadOnly == true
               ? null
@@ -119,11 +121,20 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
           child: AbsorbPointer(
             child: TextField(
               decoration: InputDecoration(
+                label: hasTitle
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(widget.model.title!),
+                          if (isRequired)
+                            const Text(' *', style: TextStyle(color: Colors.red)),
+                        ],
+                      )
+                    : null,
                 hintText: widget.model.searchHint ?? 'Search',
                 prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                border: const OutlineInputBorder(),
+                floatingLabelBehavior: FloatingLabelBehavior.always,
               ),
             ),
           ),

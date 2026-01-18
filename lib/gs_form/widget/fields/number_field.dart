@@ -70,10 +70,12 @@ class _GSNumberFieldState extends State<GSNumberField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
     final allowDecimal = widget.model.allowDecimal ?? false;
     final allowNegative = widget.model.allowNegative ?? false;
+    final helperText = _buildHelperText();
 
     // Build input formatters based on settings
     List<TextInputFormatter> formatters = [];
@@ -88,37 +90,53 @@ class _GSNumberFieldState extends State<GSNumberField> {
       formatters.add(FilteringTextInputFormatter.allow(RegExp(pattern)));
     }
 
-    return TextField(
-      readOnly: widget.model.enableReadOnly ?? false,
-      controller: widget.controller,
-      maxLength: widget.model.maxLength,
-      keyboardType: TextInputType.numberWithOptions(
-        decimal: allowDecimal,
-        signed: allowNegative,
-      ),
-      inputFormatters: formatters,
-      focusNode: widget.model.focusNode,
-      textInputAction: widget.model.nextFocusNode != null
-          ? TextInputAction.next
-          : TextInputAction.done,
-      onSubmitted: (_) {
-        FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
-      },
-      onChanged: (value) {
-        widget.onChanged?.call(value);
-      },
-      decoration: InputDecoration(
-        label: widget.model.title != null
-            ? _buildLabel(widget.model.title!, isRequired)
-            : null,
-        hintText: widget.model.hint,
-        helperText: _buildHelperText(),
-        errorText: isError ? widget.model.errorMessage : null,
-        counterText: widget.model.showCounter == true ? null : '',
-        border: const OutlineInputBorder(),
-        prefixIcon: widget.model.prefixWidget,
-        suffixIcon: widget.model.postfixWidget,
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          readOnly: widget.model.enableReadOnly ?? false,
+          controller: widget.controller,
+          maxLength: widget.model.maxLength,
+          keyboardType: TextInputType.numberWithOptions(
+            decimal: allowDecimal,
+            signed: allowNegative,
+          ),
+          inputFormatters: formatters,
+          focusNode: widget.model.focusNode,
+          textInputAction: widget.model.nextFocusNode != null
+              ? TextInputAction.next
+              : TextInputAction.done,
+          onSubmitted: (_) {
+            FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
+          },
+          onChanged: (value) {
+            widget.onChanged?.call(value);
+          },
+          decoration: InputDecoration(
+            label: widget.model.title != null
+                ? _buildLabel(widget.model.title!, isRequired)
+                : null,
+            hintText: widget.model.hint,
+            errorText: isError ? widget.model.errorMessage : null,
+            counterText: widget.model.showCounter == true ? null : '',
+            border: const OutlineInputBorder(),
+            prefixIcon: widget.model.prefixWidget,
+            suffixIcon: widget.model.postfixWidget,
+          ),
+        ),
+        // Display helper text separately for proper left alignment
+        if (helperText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              helperText,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+      ],
     );
   }
 
