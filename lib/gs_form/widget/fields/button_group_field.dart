@@ -52,7 +52,16 @@ class _GSButtonGroupFieldState extends State<GSButtonGroupField> {
   @override
   void didUpdateWidget(covariant GSButtonGroupField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    widget.selectedIndex = oldWidget.selectedIndex;
+    // Re-initialize selection if items changed (e.g., when isSelected flags are updated)
+    if (widget.model.items != oldWidget.model.items) {
+      _initSelection();
+      // Need to rebuild to reflect the new selection
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    } else {
+      widget.selectedIndex = oldWidget.selectedIndex;
+    }
   }
 
   void _selectItem(int index) {

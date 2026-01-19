@@ -41,24 +41,62 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
   @override
   void initState() {
     widget.filteredItems = widget.model.items;
+    // Populate valueObject with initially selected items
+    widget.valueObject = widget.model.items.where((item) => item.isSelected).toList();
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant GSCheckListField oldWidget) {
-    widget.filteredItems = oldWidget.filteredItems;
-    widget.valueObject = oldWidget.valueObject;
     super.didUpdateWidget(oldWidget);
+    // Re-initialize if items changed (e.g., when isSelected flags are updated for read-only mode)
+    if (widget.model.items != oldWidget.model.items) {
+      widget.filteredItems = widget.model.items;
+      widget.valueObject = widget.model.items.where((item) => item.isSelected).toList();
+      // Need to rebuild to reflect the new selection
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    } else {
+      widget.filteredItems = oldWidget.filteredItems;
+      widget.valueObject = oldWidget.valueObject;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isRequired = widget.model.required ?? false;
+    final hasTitle = widget.model.title != null && widget.model.title!.isNotEmpty;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Title with required indicator
+        if (hasTitle)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.model.title!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                if (isRequired)
+                  Text(
+                    ' *',
+                    style: TextStyle(
+                      color: theme.colorScheme.error,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         if (widget.model.searchable)
           Padding(
             padding: const EdgeInsets.all(12.0),
