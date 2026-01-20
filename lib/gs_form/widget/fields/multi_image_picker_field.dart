@@ -188,13 +188,20 @@ class _SelectItem extends StatelessWidget {
                     },
                   );
                 } else if (model.imageSource == GSImageSource.camera) {
-                  GSFormUtils.pickImage(ImageSource.camera).then(
-                    (imageFile) {
+                  // On iOS simulator, generate a placeholder image instead
+                  GSFormUtils.isIOSSimulator().then((isSimulator) async {
+                    if (isSimulator) {
+                      final placeholderFile = await GSFormUtils.generatePlaceholderImage();
+                      if (placeholderFile != null) {
+                        _fillImagePath(context, placeholderFile);
+                      }
+                    } else {
+                      final imageFile = await GSFormUtils.pickImage(ImageSource.camera);
                       if (imageFile != null) {
                         _fillImagePath(context, imageFile);
                       }
-                    },
-                  );
+                    }
+                  });
                 } else {
                   GSFormUtils.pickImage(ImageSource.gallery).then(
                     (imageFile) {
