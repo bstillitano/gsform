@@ -47,7 +47,7 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
     final isError = widget.model.status == GSFieldStatusEnum.error;
 
     return InkWell(
-      onTap: () {
+      onTap: widget.model.enableReadOnly == true ? null : () {
         _route(
           context,
           QrScannerScreen(

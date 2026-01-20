@@ -112,7 +112,7 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
                 ),
               ))
           .toList(),
-      onChanged: (value) {
+      onChanged: widget.model.enableReadOnly == true ? null : (value) {
         if (value?.id != widget.hintIndex) {
           widget.model.items
               .firstWhere((element) => element.id == value!.id)

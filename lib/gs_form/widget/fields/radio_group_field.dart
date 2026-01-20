@@ -142,7 +142,7 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
           padding: const EdgeInsets.only(right: 8.0),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
-            onTap: () {
+            onTap: widget.model.enableReadOnly == true ? null : () {
               for (var element in widget.filteredItems) {
                 element.isSelected = false;
               }
@@ -157,7 +157,7 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
                 Radio<RadioDataModel>(
                   value: item,
                   groupValue: widget.returnedData,
-                  onChanged: (value) {
+                  onChanged: widget.model.enableReadOnly == true ? null : (value) {
                     for (var element in widget.filteredItems) {
                       element.isSelected = false;
                     }
@@ -210,7 +210,7 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
             title: Text(item.title),
             value: item,
             groupValue: widget.returnedData,
-            onChanged: (value) {
+            onChanged: widget.model.enableReadOnly == true ? null : (value) {
               for (var element in widget.filteredItems) {
                 element.isSelected = false;
               }

@@ -77,7 +77,7 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
     final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'date range'}' : null;
 
     return InkWell(
-      onTap: () {
+      onTap: widget.model.enableReadOnly == true ? null : () {
         if (widget.model.calendarType == GSCalendarType.jalali) {
           _openDateRangePicker();
         } else {

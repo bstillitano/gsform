@@ -24,6 +24,7 @@ class GSDatePickerModel extends GSFieldModel {
     value,
     weight,
     showTitle,
+    enableReadOnly,
     this.hint,
     this.dateFormatType,
     this.isPastAvailable,
@@ -43,5 +44,6 @@ class GSDatePickerModel extends GSFieldModel {
             status: status,
             value: value,
             weight: weight,
-            showTitle: showTitle);
+            showTitle: showTitle,
+            enableReadOnly: enableReadOnly);
 }

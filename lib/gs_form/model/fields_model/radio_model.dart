@@ -30,6 +30,7 @@ class GSRadioModel extends GSFieldModel {
       value,
       weight,
       showTitle,
+      enableReadOnly,
       required this.items,
       required this.callBack,
       this.selectedIcon,
@@ -55,5 +56,6 @@ class GSRadioModel extends GSFieldModel {
           value: value,
           weight: weight,
           showTitle: showTitle,
+          enableReadOnly: enableReadOnly,
         );
 }

@@ -23,6 +23,7 @@ class GSSpinnerModel extends GSFieldModel {
       weight,
       onTap,
       showTitle,
+      enableReadOnly,
       required this.items,
       this.onChange,
       this.hint})
@@ -40,5 +41,6 @@ class GSSpinnerModel extends GSFieldModel {
           validateRegEx: validateRegEx,
           weight: weight,
           showTitle: showTitle,
+          enableReadOnly: enableReadOnly,
         );
 }

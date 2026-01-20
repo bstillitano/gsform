@@ -21,6 +21,7 @@ class GSTimePickerModel extends GSFieldModel {
     validateReg,
     weight,
     showTitle,
+    enableReadOnly,
     this.timePickerType,
     this.hint,
     this.initialTime,
@@ -38,6 +39,7 @@ class GSTimePickerModel extends GSFieldModel {
           validateRegEx: validateReg,
           weight: weight,
           showTitle: showTitle,
+          enableReadOnly: enableReadOnly,
         );
 }
 

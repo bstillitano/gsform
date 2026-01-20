@@ -154,7 +154,7 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
                 return CheckboxListTile(
                   title: Text(item.title),
                   value: item.isSelected,
-                  onChanged: (value) {
+                  onChanged: widget.model.enableReadOnly == true ? null : (value) {
                     item.isSelected = value ?? false;
                     if (item.isSelected) {
                       widget.valueObject.add(item);

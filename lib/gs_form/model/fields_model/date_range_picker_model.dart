@@ -27,6 +27,7 @@ class GSDateRangePickerModel extends GSFieldModel {
     value,
     validateReg,
     weight,
+    enableReadOnly,
     this.hint,
     this.dateFormatType,
     this.isPastAvailable,
@@ -50,5 +51,6 @@ class GSDateRangePickerModel extends GSFieldModel {
             value: value,
             validateRegEx: validateReg,
             weight: weight,
-            showTitle: showTitle);
+            showTitle: showTitle,
+            enableReadOnly: enableReadOnly);
 }
