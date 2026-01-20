@@ -237,6 +237,7 @@ class GSField extends StatefulWidget {
     ValueChanged<SpinnerDataModel?>? onChange,
     required List<SpinnerDataModel> items,
     String? hint,
+    bool? readOnly,
   }) {
     model = GSSpinnerModel(
       type: GSFieldTypeEnum.spinner,
@@ -252,6 +253,7 @@ class GSField extends StatefulWidget {
       hint: hint,
       onChange: onChange,
       value: value,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -278,6 +280,7 @@ class GSField extends StatefulWidget {
     BoxDecoration? searchBoxDecoration,
     required List<RadioDataModel> items,
     required ValueChanged<RadioDataModel> callBack,
+    bool? readOnly,
   }) {
     model = GSRadioModel(
       type: GSFieldTypeEnum.radioGroup,
@@ -302,6 +305,7 @@ class GSField extends StatefulWidget {
       searchHint: searchHint,
       searchIcon: searchIcon,
       searchBoxDecoration: searchBoxDecoration,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -328,6 +332,7 @@ class GSField extends StatefulWidget {
     String? searchHint,
     Icon? searchIcon,
     BoxDecoration? searchBoxDecoration,
+    bool? readOnly,
   }) {
     bool isRequired = false;
     if (requiredCheckListEnum != null &&
@@ -358,6 +363,7 @@ class GSField extends StatefulWidget {
       searchIcon: searchIcon,
       searchBoxDecoration: searchBoxDecoration,
       requiredCheckListEnum: requiredCheckListEnum,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -575,6 +581,7 @@ class GSField extends StatefulWidget {
     GSDate? initialDate,
     GSDate? availableFrom,
     GSDate? availableTo,
+    bool? readOnly,
     Function(DateTime?)? onChanged,
   }) {
     model = GSDatePickerModel(
@@ -595,6 +602,7 @@ class GSField extends StatefulWidget {
       initialDate: initialDate,
       availableFrom: availableTo,
       availableTo: availableTo,
+      enableReadOnly: readOnly,
     );
     onDateChange = onChanged;
   }
@@ -620,6 +628,7 @@ class GSField extends StatefulWidget {
     GSDate? initialEndDate,
     GSDate? availableFrom,
     GSDate? availableTo,
+    bool? readOnly,
   }) {
     model = GSDateRangePickerModel(
       type: GSFieldTypeEnum.dateRage,
@@ -642,6 +651,7 @@ class GSField extends StatefulWidget {
       availableFrom: availableTo,
       availableTo: availableTo,
       calendarType: calendarType,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -658,6 +668,7 @@ class GSField extends StatefulWidget {
     int? weight,
     String? hint,
     TimeOfDay? initialTime,
+    bool? readOnly,
     Function(TimeOfDay?)? onChanged,
   }) {
     model = GSTimePickerModel(
@@ -674,6 +685,7 @@ class GSField extends StatefulWidget {
       hint: hint,
       initialTime: initialTime,
       timePickerType: TimePickerType.english,
+      enableReadOnly: readOnly,
     );
     onTimeChange = onChanged;
   }
