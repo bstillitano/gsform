@@ -151,10 +151,10 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
                   : const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 final item = widget.filteredItems[index];
-                return CheckboxListTile(
+                final checkboxTile = CheckboxListTile(
                   title: Text(item.title),
                   value: item.isSelected,
-                  onChanged: widget.model.enableReadOnly == true ? null : (value) {
+                  onChanged: (value) {
                     item.isSelected = value ?? false;
                     if (item.isSelected) {
                       widget.valueObject.add(item);
@@ -168,6 +168,11 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                 );
+                // Use IgnorePointer to prevent interaction while maintaining normal appearance
+                if (widget.model.enableReadOnly == true) {
+                  return IgnorePointer(child: checkboxTile);
+                }
+                return checkboxTile;
               },
             ),
           ),

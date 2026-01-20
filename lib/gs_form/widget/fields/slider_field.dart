@@ -136,13 +136,23 @@ class _GSSliderFieldState extends State<GSSliderField> {
         Row(
           children: [
             Expanded(
-              child: Slider(
-                value: _value,
-                min: _min,
-                max: _max,
-                divisions: _divisions > 0 ? _divisions : null,
-                onChanged: widget.model.enableReadOnly == true ? null : _onSliderChanged,
-              ),
+              child: widget.model.enableReadOnly == true
+                  ? IgnorePointer(
+                      child: Slider(
+                        value: _value,
+                        min: _min,
+                        max: _max,
+                        divisions: _divisions > 0 ? _divisions : null,
+                        onChanged: _onSliderChanged,
+                      ),
+                    )
+                  : Slider(
+                      value: _value,
+                      min: _min,
+                      max: _max,
+                      divisions: _divisions > 0 ? _divisions : null,
+                      onChanged: _onSliderChanged,
+                    ),
             ),
             if (showValueField)
               SizedBox(

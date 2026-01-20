@@ -76,8 +76,8 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
     final isRequired = widget.model.required ?? false;
     final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'date'}' : null;
 
-    return InkWell(
-      onTap: widget.model.enableReadOnly == true ? null : () {
+    final picker = InkWell(
+      onTap: () {
         _openGregorianPicker();
       },
       child: InputDecorator(
@@ -104,6 +104,11 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
         ),
       ),
     );
+    // Use IgnorePointer to prevent interaction while maintaining normal appearance
+    if (widget.model.enableReadOnly == true) {
+      return IgnorePointer(child: picker);
+    }
+    return picker;
   }
 
   Widget _buildLabel(String title, bool isRequired) {

@@ -138,11 +138,11 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
       itemBuilder: (context, index) {
         final item = widget.filteredItems[index];
         final isSelected = widget.returnedData == item;
-        return Padding(
+        final radioItem = Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
-            onTap: widget.model.enableReadOnly == true ? null : () {
+            onTap: () {
               for (var element in widget.filteredItems) {
                 element.isSelected = false;
               }
@@ -157,7 +157,7 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
                 Radio<RadioDataModel>(
                   value: item,
                   groupValue: widget.returnedData,
-                  onChanged: widget.model.enableReadOnly == true ? null : (value) {
+                  onChanged: (value) {
                     for (var element in widget.filteredItems) {
                       element.isSelected = false;
                     }
@@ -180,6 +180,11 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
             ),
           ),
         );
+        // Use IgnorePointer to prevent interaction while maintaining normal appearance
+        if (widget.model.enableReadOnly == true) {
+          return IgnorePointer(child: radioItem);
+        }
+        return radioItem;
       },
     );
   }
@@ -206,11 +211,11 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
             : const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           final item = widget.filteredItems[index];
-          return RadioListTile<RadioDataModel>(
+          final radioListTile = RadioListTile<RadioDataModel>(
             title: Text(item.title),
             value: item,
             groupValue: widget.returnedData,
-            onChanged: widget.model.enableReadOnly == true ? null : (value) {
+            onChanged: (value) {
               for (var element in widget.filteredItems) {
                 element.isSelected = false;
               }
@@ -222,6 +227,11 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
             controlAffinity: ListTileControlAffinity.leading,
             contentPadding: EdgeInsets.zero,
           );
+          // Use IgnorePointer to prevent interaction while maintaining normal appearance
+          if (widget.model.enableReadOnly == true) {
+            return IgnorePointer(child: radioListTile);
+          }
+          return radioListTile;
         },
       ),
     );

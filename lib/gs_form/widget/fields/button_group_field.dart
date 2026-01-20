@@ -132,10 +132,8 @@ class _GSButtonGroupFieldState extends State<GSButtonGroupField> {
 
   Widget _buildButton(
       ButtonGroupItem item, bool isSelected, int index, ThemeData theme) {
-    return FilledButton(
-        onPressed: widget.model.enableReadOnly == true
-            ? null
-            : () => _selectItem(index),
+    final button = FilledButton(
+        onPressed: () => _selectItem(index),
         style: FilledButton.styleFrom(
           backgroundColor: isSelected
               ? theme.colorScheme.primary
@@ -154,6 +152,12 @@ class _GSButtonGroupFieldState extends State<GSButtonGroupField> {
         overflow: TextOverflow.ellipsis,
       ),
     );
+
+    // Use IgnorePointer to prevent interaction while maintaining normal appearance
+    if (widget.model.enableReadOnly == true) {
+      return IgnorePointer(child: button);
+    }
+    return button;
   }
 
   Widget _buildLabel(String title, bool isRequired, ThemeData theme) {

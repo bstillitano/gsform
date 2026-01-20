@@ -85,8 +85,8 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
     final isRequired = widget.model.required ?? false;
     final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'time'}' : null;
 
-    return InkWell(
-      onTap: widget.model.enableReadOnly == true ? null : () {
+    final picker = InkWell(
+      onTap: () {
         _openTimePicker();
       },
       child: InputDecorator(
@@ -111,6 +111,11 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
         ),
       ),
     );
+    // Use IgnorePointer to prevent interaction while maintaining normal appearance
+    if (widget.model.enableReadOnly == true) {
+      return IgnorePointer(child: picker);
+    }
+    return picker;
   }
 
   Widget _buildLabel(String title, bool isRequired) {

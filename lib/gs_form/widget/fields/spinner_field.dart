@@ -87,7 +87,7 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
     final isRequired = widget.model.required ?? false;
     final defaultErrorMessage = isRequired ? 'Please select a ${widget.model.title?.toLowerCase() ?? 'value'}' : null;
 
-    return DropdownButtonFormField<SpinnerDataModel>(
+    final dropdown = DropdownButtonFormField<SpinnerDataModel>(
       value: widget.returnedData,
       isExpanded: true,
       decoration: InputDecoration(
@@ -112,7 +112,7 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
                 ),
               ))
           .toList(),
-      onChanged: widget.model.enableReadOnly == true ? null : (value) {
+      onChanged: (value) {
         if (value?.id != widget.hintIndex) {
           widget.model.items
               .firstWhere((element) => element.id == value!.id)
@@ -124,6 +124,11 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
         }
       },
     );
+    // Use IgnorePointer to prevent interaction while maintaining normal appearance
+    if (widget.model.enableReadOnly == true) {
+      return IgnorePointer(child: dropdown);
+    }
+    return dropdown;
   }
 
   Widget _buildLabel(String title, bool isRequired) {

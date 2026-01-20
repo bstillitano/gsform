@@ -122,8 +122,9 @@ class _GSStepperFieldState extends State<GSStepperField> {
             // Decrement button
             _buildStepperButton(
               icon: Icons.remove,
-              onPressed: widget.model.enableReadOnly == true ? null : _decrement,
+              onPressed: _decrement,
               theme: theme,
+              isReadOnly: widget.model.enableReadOnly == true,
             ),
             const SizedBox(width: 8),
             // Text field
@@ -161,8 +162,9 @@ class _GSStepperFieldState extends State<GSStepperField> {
             // Increment button
             _buildStepperButton(
               icon: Icons.add,
-              onPressed: widget.model.enableReadOnly == true ? null : _increment,
+              onPressed: _increment,
               theme: theme,
+              isReadOnly: widget.model.enableReadOnly == true,
             ),
           ],
         ),
@@ -172,10 +174,11 @@ class _GSStepperFieldState extends State<GSStepperField> {
 
   Widget _buildStepperButton({
     required IconData icon,
-    required VoidCallback? onPressed,
+    required VoidCallback onPressed,
     required ThemeData theme,
+    bool isReadOnly = false,
   }) {
-    return Container(
+    final button = Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.primary,
         borderRadius: BorderRadius.circular(8),
@@ -196,6 +199,11 @@ class _GSStepperFieldState extends State<GSStepperField> {
         ),
       ),
     );
+    // Use IgnorePointer to prevent interaction while maintaining normal appearance
+    if (isReadOnly) {
+      return IgnorePointer(child: button);
+    }
+    return button;
   }
 
   Widget _buildLabel(String title, bool isRequired) {

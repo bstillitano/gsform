@@ -46,8 +46,8 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
     final theme = Theme.of(context);
     final isError = widget.model.status == GSFieldStatusEnum.error;
 
-    return InkWell(
-      onTap: widget.model.enableReadOnly == true ? null : () {
+    final scanner = InkWell(
+      onTap: () {
         _route(
           context,
           QrScannerScreen(
@@ -78,6 +78,11 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
         ),
       ),
     );
+    // Use IgnorePointer to prevent interaction while maintaining normal appearance
+    if (widget.model.enableReadOnly == true) {
+      return IgnorePointer(child: scanner);
+    }
+    return scanner;
   }
 
   void _route(BuildContext context, Widget screen) {
