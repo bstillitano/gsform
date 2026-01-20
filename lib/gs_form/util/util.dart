@@ -205,7 +205,7 @@ class GSFormUtils {
       // Draw background
       final bgPaint = Paint()..color = bgColor;
       canvas.drawRect(
-        const Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+        Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
         bgPaint,
       );
 
@@ -235,7 +235,7 @@ class GSFormUtils {
             fontWeight: FontWeight.bold,
           ),
         ),
-        textDirection: TextDirection.ltr,
+        textDirection: ui.TextDirection.ltr,
         textAlign: TextAlign.center,
       );
       textPainter.layout(maxWidth: width.toDouble());
@@ -257,7 +257,7 @@ class GSFormUtils {
             fontSize: 18,
           ),
         ),
-        textDirection: TextDirection.ltr,
+        textDirection: ui.TextDirection.ltr,
       );
       timePainter.layout();
       timePainter.paint(
