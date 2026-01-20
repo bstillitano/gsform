@@ -16,6 +16,7 @@ class GSMultiImagePickerModel extends GSFieldModel {
   double? maximumSizePerImageInKB;
   double? maximumImageCount;
   VoidCallback? onErrorSizeItem;
+  bool? enableReadOnly;
 
   GSMultiImagePickerModel({
     type,
@@ -39,6 +40,7 @@ class GSMultiImagePickerModel extends GSFieldModel {
     this.galleryPopupTitle,
     this.imageSource,
     this.hint,
+    this.enableReadOnly,
   }) : super(
           type: type,
           tag: tag,

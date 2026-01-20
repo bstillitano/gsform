@@ -145,6 +145,7 @@ class GSField extends StatefulWidget {
     bool? showCropper,
     double? maximumSizePerImageInBytes,
     VoidCallback? onErrorSizeItem,
+    bool? readOnly,
     Function(String?)? onChanged,
   }) {
     model = GSImagePickerModel(
@@ -167,6 +168,7 @@ class GSField extends StatefulWidget {
       value: defaultImagePathValue,
       maximumSizePerImageInBytes: maximumSizePerImageInBytes,
       onErrorSizeItem: onErrorSizeItem,
+      enableReadOnly: readOnly,
     );
     onChange = onChanged;
   }
@@ -192,6 +194,7 @@ class GSField extends StatefulWidget {
     double? maximumSizePerImageInKB,
     double? maximumImageCount,
     VoidCallback? onErrorSizeItem,
+    bool? readOnly,
     Function(List<String>?)? onChanged,
   }) {
     model = GSMultiImagePickerModel(
@@ -215,6 +218,7 @@ class GSField extends StatefulWidget {
       maximumImageCount: maximumImageCount,
       maximumSizePerImageInKB: maximumSizePerImageInKB,
       onErrorSizeItem: onErrorSizeItem,
+      enableReadOnly: readOnly,
     );
     onArrayChange = onChanged;
   }

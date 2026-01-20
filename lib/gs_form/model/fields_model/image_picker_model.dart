@@ -13,6 +13,7 @@ class GSImagePickerModel extends GSFieldModel {
   bool? showCropper;
   double? maximumSizePerImageInBytes;
   VoidCallback? onErrorSizeItem;
+  bool? enableReadOnly;
 
   GSImagePickerModel({
     type,
@@ -35,6 +36,7 @@ class GSImagePickerModel extends GSFieldModel {
     this.hint,
     this.maximumSizePerImageInBytes,
     this.onErrorSizeItem,
+    this.enableReadOnly,
   }) : super(
             type: type,
             tag: tag,

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -59,6 +60,7 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isError = widget.model.status == GSFieldStatusEnum.error;
+    final isReadOnly = widget.model.enableReadOnly ?? false;
 
     return Material(
       color: Colors.transparent,
@@ -66,36 +68,38 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        onTap: () {
-          if (widget.model.imageSource == GSImageSource.both) {
-            GSFormUtils.showImagePickerBottomSheet(
-              cameraName: widget.model.cameraPopupTitle,
-              galleryName: widget.model.galleryPopupTitle,
-              cameraAssets: widget.model.cameraPopupIcon,
-              galleryAssets: widget.model.galleryPopupIcon,
-              context,
-              (image) async {
-                _fillImagePath(image);
-              },
-            );
-          } else if (widget.model.imageSource == GSImageSource.camera) {
-            GSFormUtils.pickImage(ImageSource.camera).then(
-              (imageFile) {
-                if (imageFile != null) {
-                  _fillImagePath(imageFile);
+        onTap: isReadOnly
+            ? null
+            : () {
+                if (widget.model.imageSource == GSImageSource.both) {
+                  GSFormUtils.showImagePickerBottomSheet(
+                    cameraName: widget.model.cameraPopupTitle,
+                    galleryName: widget.model.galleryPopupTitle,
+                    cameraAssets: widget.model.cameraPopupIcon,
+                    galleryAssets: widget.model.galleryPopupIcon,
+                    context,
+                    (image) async {
+                      _fillImagePath(image);
+                    },
+                  );
+                } else if (widget.model.imageSource == GSImageSource.camera) {
+                  GSFormUtils.pickImage(ImageSource.camera).then(
+                    (imageFile) {
+                      if (imageFile != null) {
+                        _fillImagePath(imageFile);
+                      }
+                    },
+                  );
+                } else {
+                  GSFormUtils.pickImage(ImageSource.gallery).then(
+                    (imageFile) {
+                      if (imageFile != null) {
+                        _fillImagePath(imageFile);
+                      }
+                    },
+                  );
                 }
               },
-            );
-          } else {
-            GSFormUtils.pickImage(ImageSource.gallery).then(
-              (imageFile) {
-                if (imageFile != null) {
-                  _fillImagePath(imageFile);
-                }
-              },
-            );
-          }
-        },
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(
@@ -105,10 +109,11 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: widget.croppedFilePath == null
-              ? _NormalView(model: widget.model)
+              ? _NormalView(model: widget.model, isReadOnly: isReadOnly)
               : _ImagePickedView(
                   croppedFilePath: widget.croppedFilePath!,
                   model: widget.model,
+                  isReadOnly: isReadOnly,
                   onDeleteImage: () {
                     widget.croppedFilePath = null;
                     setState(() {});
@@ -177,8 +182,9 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
 }
 
 class _NormalView extends StatelessWidget {
-  const _NormalView({required this.model});
+  const _NormalView({required this.model, this.isReadOnly = false});
   final GSImagePickerModel model;
+  final bool isReadOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +197,7 @@ class _NormalView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          model.iconWidget,
+          if (!isReadOnly) model.iconWidget,
           const SizedBox(height: 6.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -208,18 +214,22 @@ class _NormalView extends StatelessWidget {
                   ),
                 ),
               Text(
-                model.title ?? '',
-                style: theme.textTheme.titleMedium,
+                isReadOnly ? 'No image' : (model.title ?? ''),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: isReadOnly ? theme.hintColor : null,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 6.0),
-          Text(
-            model.hint ?? '',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.hintColor,
+          if (!isReadOnly) ...[
+            const SizedBox(height: 6.0),
+            Text(
+              model.hint ?? '',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.hintColor,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -230,17 +240,42 @@ class _ImagePickedView extends StatelessWidget {
   final String croppedFilePath;
   final GSImagePickerModel model;
   final VoidCallback onDeleteImage;
+  final bool isReadOnly;
 
   const _ImagePickedView({
     required this.croppedFilePath,
     required this.model,
     required this.onDeleteImage,
+    this.isReadOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    // Check if path is a URL, file path, or base64 data
+    final isUrl = croppedFilePath.startsWith('http');
+    final isBase64 = croppedFilePath.startsWith('data:') ||
+        (!croppedFilePath.startsWith('/') && !croppedFilePath.startsWith('http') && croppedFilePath.length > 100);
+
+    Widget imageWidget;
+    if (isUrl) {
+      imageWidget = Image.network(croppedFilePath, fit: BoxFit.contain);
+    } else if (isBase64) {
+      // Handle base64 data URL or raw base64 string
+      try {
+        final base64String = croppedFilePath.contains(',')
+            ? croppedFilePath.split(',').last
+            : croppedFilePath;
+        final bytes = base64Decode(base64String);
+        imageWidget = Image.memory(bytes, fit: BoxFit.contain);
+      } catch (e) {
+        imageWidget = const Icon(Icons.broken_image);
+      }
+    } else {
+      imageWidget = Image.file(File(croppedFilePath), fit: BoxFit.contain);
+    }
 
     return SizedBox(
       height: 140,
@@ -249,65 +284,66 @@ class _ImagePickedView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.file(File(croppedFilePath), fit: BoxFit.contain),
+              Expanded(child: imageWidget),
             ],
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                height: 32.0,
-                decoration: const BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(9.0),
-                    bottomRight: Radius.circular(9.0),
+          if (!isReadOnly)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  height: 32.0,
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(9.0),
+                      bottomRight: Radius.circular(9.0),
+                    ),
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0, left: 8.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        model.title!,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          model.title!,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      SizedBox(
-                        height: 20.0,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colorScheme.error,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        const Spacer(),
+                        SizedBox(
+                          height: 20.0,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorScheme.error,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              onDeleteImage.call();
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  maxLines: 1,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.onError,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          onPressed: () {
-                            onDeleteImage.call();
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(width: 8),
-                              Text(
-                                'Delete',
-                                maxLines: 1,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: colorScheme.onError,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          )
+              ],
+            )
         ],
       ),
     );

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -57,6 +58,34 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
 
   @override
   Widget build(BuildContext context) {
+    final isReadOnly = widget.model.enableReadOnly ?? false;
+    final theme = Theme.of(context);
+
+    // In read-only mode with no images, show a placeholder
+    if (isReadOnly && widget.croppedFilePaths.isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: 100,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: theme.colorScheme.outline, width: 1),
+        ),
+        child: Center(
+          child: Text(
+            'No images',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.hintColor,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Calculate item count: include + button only if not read-only
+    final itemCount = isReadOnly
+        ? widget.croppedFilePaths.length
+        : widget.croppedFilePaths.length + 1;
+
     return GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -66,8 +95,17 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
           mainAxisSpacing: 10.0,
           crossAxisSpacing: 10.0,
         ),
-        itemCount: widget.croppedFilePaths.length + 1,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
+          // In read-only mode, all items are images (no + button)
+          if (isReadOnly) {
+            return _ImageBox(
+              imagePath: widget.croppedFilePaths[index],
+              isReadOnly: true,
+              onDelete: (_) {},
+            );
+          }
+          // In edit mode, first item is + button, rest are images
           return index == 0
               ? _SelectItem(
                   model: widget.model,
@@ -80,6 +118,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
                 )
               : _ImageBox(
                   imagePath: widget.croppedFilePaths[index - 1],
+                  isReadOnly: false,
                   onDelete: (value) {
                     widget.croppedFilePaths
                         .removeWhere((element) => element == value);
@@ -233,15 +272,54 @@ class _ImageBox extends StatelessWidget {
   const _ImageBox({
     required this.imagePath,
     required this.onDelete,
+    this.isReadOnly = false,
   });
 
   final String imagePath;
   final ValueChanged<String> onDelete;
+  final bool isReadOnly;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    // Determine image type: URL, base64, or file path
+    final isUrl = imagePath.startsWith('http');
+    final isBase64 = imagePath.startsWith('data:') ||
+        (!imagePath.startsWith('/') && !imagePath.startsWith('http') && imagePath.length > 100);
+
+    Widget imageWidget;
+    if (isUrl) {
+      imageWidget = Image.network(
+        imagePath,
+        width: 90,
+        height: 90,
+        fit: BoxFit.cover,
+      );
+    } else if (isBase64) {
+      try {
+        final base64String = imagePath.contains(',')
+            ? imagePath.split(',').last
+            : imagePath;
+        final bytes = base64Decode(base64String);
+        imageWidget = Image.memory(
+          bytes,
+          width: 90,
+          height: 90,
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        imageWidget = const Icon(Icons.broken_image);
+      }
+    } else {
+      imageWidget = Image.file(
+        File(imagePath),
+        width: 90,
+        height: 90,
+        fit: BoxFit.cover,
+      );
+    }
 
     return SizedBox(
       width: 100,
@@ -255,41 +333,30 @@ class _ImageBox extends StatelessWidget {
             decoration:
                 BoxDecoration(borderRadius: BorderRadius.circular(5.0)),
             clipBehavior: Clip.hardEdge,
-            child: imagePath.contains('http')
-                ? Image.network(
-                    imagePath,
-                    width: 90,
-                    height: 90,
-                    fit: BoxFit.fill,
-                  )
-                : Image.file(
-                    File(imagePath),
-                    width: 90,
-                    height: 90,
-                    fit: BoxFit.fill,
-                  ),
+            child: imageWidget,
           ),
-          Positioned(
-            bottom: 8.0,
-            left: 8.0,
-            child: InkWell(
-              onTap: () {
-                onDelete.call(imagePath);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(4.0),
-                decoration: BoxDecoration(
-                  color: colorScheme.error,
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                child: Icon(
-                  Icons.delete,
-                  size: 15,
-                  color: colorScheme.onError,
+          if (!isReadOnly)
+            Positioned(
+              bottom: 8.0,
+              left: 8.0,
+              child: InkWell(
+                onTap: () {
+                  onDelete.call(imagePath);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(4.0),
+                  decoration: BoxDecoration(
+                    color: colorScheme.error,
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  child: Icon(
+                    Icons.delete,
+                    size: 15,
+                    color: colorScheme.onError,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
