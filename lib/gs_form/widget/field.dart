@@ -498,6 +498,8 @@ class GSField extends StatefulWidget {
     int? maxLength,
     String? hint,
     bool? readOnly,
+    FocusNode? focusNode,
+    FocusNode? nextFocusNode,
   }) {
     model = GSMobileModel(
       type: GSFieldTypeEnum.mobile,
@@ -514,6 +516,8 @@ class GSField extends StatefulWidget {
       maxLength: maxLength,
       hint: hint,
       enableReadOnly: readOnly,
+      focusNode: focusNode,
+      nextFocusNode: nextFocusNode,
     );
   }
 
@@ -538,6 +542,8 @@ class GSField extends StatefulWidget {
     double? minValue,
     double? maxValue,
     Function(String?)? onChanged,
+    FocusNode? focusNode,
+    FocusNode? nextFocusNode,
   }) {
     model = GSNumberModel(
       type: GSFieldTypeEnum.number,
@@ -559,6 +565,8 @@ class GSField extends StatefulWidget {
       allowNegative: allowNegative,
       minValue: minValue,
       maxValue: maxValue,
+      focusNode: focusNode,
+      nextFocusNode: nextFocusNode,
     );
     onChange = onChanged;
   }

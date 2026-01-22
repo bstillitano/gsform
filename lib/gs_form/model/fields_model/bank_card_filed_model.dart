@@ -17,6 +17,8 @@ class GSBankCardModel extends GSFieldModel {
       value,
       validateRegEx,
       weight,
+      FocusNode? focusNode,
+      FocusNode? nextFocusNode,
       showTitle,
       enableReadOnly,
       this.hint})
@@ -34,7 +36,8 @@ class GSBankCardModel extends GSFieldModel {
           value: value,
           validateRegEx: validateRegEx,
           weight: weight,
+          focusNode: focusNode,
+          nextFocusNode: nextFocusNode,
           enableReadOnly: enableReadOnly,
-          focusNode: FocusNode(),
         );
 }

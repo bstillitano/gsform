@@ -132,10 +132,19 @@ class _GSStepperFieldState extends State<GSStepperField> {
               child: TextField(
                 readOnly: widget.model.enableReadOnly ?? false,
                 controller: widget.controller,
+                focusNode: widget.model.focusNode,
                 keyboardType: TextInputType.numberWithOptions(
                   decimal: allowDecimal,
                   signed: widget.model.allowNegative ?? true,
                 ),
+                textInputAction: widget.model.nextFocusNode != null
+                    ? TextInputAction.next
+                    : TextInputAction.done,
+                onSubmitted: (_) {
+                  if (widget.model.nextFocusNode != null) {
+                    FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
+                  }
+                },
                 inputFormatters: [
                   if (allowDecimal)
                     FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*'))

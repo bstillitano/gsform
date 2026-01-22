@@ -159,8 +159,12 @@ class _GSSliderFieldState extends State<GSSliderField> {
                 width: 80,
                 child: TextField(
                   controller: widget.textController,
+                  focusNode: widget.model.focusNode,
                   textAlign: TextAlign.center,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: widget.model.nextFocusNode != null
+                      ? TextInputAction.next
+                      : TextInputAction.done,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
                   ],
@@ -172,7 +176,12 @@ class _GSSliderFieldState extends State<GSSliderField> {
                     ),
                   ),
                   enabled: widget.model.enableReadOnly != true,
-                  onSubmitted: _onTextFieldSubmitted,
+                  onSubmitted: (value) {
+                    _onTextFieldSubmitted(value);
+                    if (widget.model.nextFocusNode != null) {
+                      FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
+                    }
+                  },
                   onEditingComplete: () {
                     _onTextFieldSubmitted(widget.textController.text);
                   },

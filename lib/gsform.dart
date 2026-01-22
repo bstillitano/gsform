@@ -47,7 +47,12 @@ export 'gs_form/model/fields_model/time_picker_model.dart';
 export 'gs_form/widget/field.dart';
 export 'gs_form/widget/form.dart';
 export 'gs_form/widget/section.dart';
+export 'gs_form/widget/keyboard_actions.dart';
 export 'gs_form/widget/fields/chip_select_search_page.dart';
+
+// Re-export keyboard_actions types for custom configurations
+export 'package:keyboard_actions/keyboard_actions.dart'
+    show KeyboardActionsItem, KeyboardActionsPlatform;
 
 // Utilities
 export 'gs_form/util/util.dart';

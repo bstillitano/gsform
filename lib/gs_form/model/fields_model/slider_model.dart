@@ -24,6 +24,8 @@ class GSSliderModel extends GSFieldModel {
     super.prefixWidget,
     super.postfixWidget,
     super.enableReadOnly,
+    super.focusNode,
+    super.nextFocusNode,
     this.minValue,
     this.maxValue,
     this.step,

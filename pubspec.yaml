@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  keyboard_actions: ^4.2.0
   intl: ^0.20.2
   mobile_scanner: ^7.0.0
   image_cropper: ^8.0.2

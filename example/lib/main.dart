@@ -248,12 +248,11 @@ class _SingleSectionFormState extends State<SingleSectionForm> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: form = GSForm.singleSection(
-                  context,
-                  fields: [
+            // GSForm handles its own scrolling when keyboard actions are enabled
+            child: form = GSForm.singleSection(
+              context,
+              padding: const EdgeInsets.all(20.0),
+              fields: [
                     GSField.email(
                       tag: 'email',
                       title: 'Email',
@@ -299,17 +298,15 @@ class _SingleSectionFormState extends State<SingleSectionForm> {
                         SpinnerDataModel(name: 'Sub C', id: 2, isSelected: selectedSpinnerId == 2),
                       ],
                     ),
-                    GSField.mobile(
-                      tag: 'phone',
-                      title: 'Phone',
-                      maxLength: 11,
-                      weight: 6,
-                      required: false,
-                      helpMessage: 'Enter phone number',
-                    ),
-                  ],
+                GSField.mobile(
+                  tag: 'phone',
+                  title: 'Phone',
+                  maxLength: 11,
+                  weight: 6,
+                  required: false,
+                  helpMessage: 'Enter phone number',
                 ),
-              ),
+              ],
             ),
           ),
           Padding(
@@ -428,12 +425,11 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                child: form = GSForm.multiSection(
-                  context,
-                  sections: [
+            // GSForm handles its own scrolling when keyboard actions are enabled
+            child: form = GSForm.multiSection(
+              context,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+              sections: [
                     GSSection(
                       sectionTitle: "Risk Matrix",
                       fields: [
@@ -940,20 +936,18 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
                           height: 200,
                           showToolbar: true,
                         ),
-                        GSField.richText(
-                          tag: 'description',
-                          title: 'Description (Required)',
-                          weight: 12,
-                          hint: 'Enter a description...',
-                          height: 150,
-                          required: true,
-                          errorMessage: 'Description is required',
-                        ),
-                      ],
+                    GSField.richText(
+                      tag: 'description',
+                      title: 'Description (Required)',
+                      weight: 12,
+                      hint: 'Enter a description...',
+                      height: 150,
+                      required: true,
+                      errorMessage: 'Description is required',
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
           ),
           Padding(
@@ -996,3 +990,4 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
     );
   }
 }
+
