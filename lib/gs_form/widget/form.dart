@@ -152,25 +152,37 @@ class GSForm extends StatefulWidget {
 
 class _GSFormState extends State<GSForm> {
   final List<FocusNode> _managedFocusNodes = [];
+  List<GSField> _discoveredFields = [];
   bool _focusNodesSetup = false;
+  final GlobalKey _formKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
+    // First try direct field setup
     _setupFocusNodes();
+    // Then schedule element tree discovery for nested fields
+    if (widget.enableKeyboardActions) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _discoverFieldsFromElementTree();
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant GSForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Re-setup focus nodes if sections changed
-    // This happens when fields are recreated in the parent's build method
     if (oldWidget.sections != widget.sections) {
-      // Don't dispose old nodes - they may still be in use by KeyboardActions
-      // Just clear our list and let them be garbage collected
       _managedFocusNodes.clear();
+      _discoveredFields.clear();
       _focusNodesSetup = false;
       _setupFocusNodes();
+      if (widget.enableKeyboardActions) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _discoverFieldsFromElementTree();
+        });
+      }
     }
   }
 
@@ -183,10 +195,61 @@ class _GSFormState extends State<GSForm> {
     super.dispose();
   }
 
+  /// Discover GSField instances by walking the element tree after build
+  void _discoverFieldsFromElementTree() {
+    if (!mounted) return;
+
+    final newFields = <GSField>[];
+
+    void visitor(Element element) {
+      if (element.widget is GSField) {
+        final field = element.widget as GSField;
+        if (field.model != null && _keyboardFieldTypes.contains(field.model!.type)) {
+          newFields.add(field);
+        }
+      }
+      element.visitChildren(visitor);
+    }
+
+    _formKey.currentContext?.visitChildElements(visitor);
+
+    // Only update if we found new fields
+    if (newFields.isNotEmpty && newFields.length != _discoveredFields.length) {
+      _discoveredFields = newFields;
+      _setupDiscoveredFocusNodes();
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _setupDiscoveredFocusNodes() {
+    // Create focus nodes for discovered fields that don't have one
+    for (int i = 0; i < _discoveredFields.length; i++) {
+      final field = _discoveredFields[i];
+      final model = field.model!;
+
+      if (model.focusNode == null) {
+        final node = FocusNode();
+        _managedFocusNodes.add(node);
+        model.focusNode = node;
+      }
+
+      // Chain to next field
+      if (model.nextFocusNode == null && i < _discoveredFields.length - 1) {
+        final nextField = _discoveredFields[i + 1];
+        if (nextField.model!.focusNode == null) {
+          final node = FocusNode();
+          _managedFocusNodes.add(node);
+          nextField.model!.focusNode = node;
+        }
+        model.nextFocusNode = nextField.model!.focusNode;
+      }
+    }
+  }
+
   void _setupFocusNodes() {
     if (!widget.enableKeyboardActions || _focusNodesSetup) return;
 
-    // Collect all keyboard fields in order
+    // Collect direct keyboard fields
     final keyboardFields = <GSField>[];
     for (var section in widget.sections) {
       for (var field in section.fields) {
@@ -203,17 +266,14 @@ class _GSFormState extends State<GSForm> {
       final field = keyboardFields[i];
       final model = field.model!;
 
-      // Create focus node if not provided
       if (model.focusNode == null) {
         final node = FocusNode();
         _managedFocusNodes.add(node);
         model.focusNode = node;
       }
 
-      // Set next focus node if not already set and there's a next field
       if (model.nextFocusNode == null && i < keyboardFields.length - 1) {
         final nextField = keyboardFields[i + 1];
-        // Ensure next field has a focus node
         if (nextField.model!.focusNode == null) {
           final node = FocusNode();
           _managedFocusNodes.add(node);
@@ -228,6 +288,8 @@ class _GSFormState extends State<GSForm> {
 
   List<FocusNode> _collectFocusNodes() {
     final focusNodes = <FocusNode>[];
+
+    // Collect from direct fields
     for (var section in widget.sections) {
       for (var field in section.fields) {
         if (field is GSField &&
@@ -238,11 +300,21 @@ class _GSFormState extends State<GSForm> {
         }
       }
     }
+
+    // Collect from discovered fields
+    for (var field in _discoveredFields) {
+      if (field.model?.focusNode != null &&
+          !focusNodes.contains(field.model!.focusNode)) {
+        focusNodes.add(field.model!.focusNode!);
+      }
+    }
+
     return focusNodes;
   }
 
   Widget _buildFormContent() {
     return ListView.separated(
+      key: _formKey,
       shrinkWrap: true,
       physics: widget.enableKeyboardActions
           ? const ClampingScrollPhysics()
