@@ -177,6 +177,21 @@ class _GSFormState extends State<GSForm> {
   }
 
   void _disposeFocusNodes() {
+    // Clear focusNode references from field models before disposing
+    // to prevent "FocusNode used after being disposed" errors
+    for (var section in widget.sections) {
+      for (var field in section.fields) {
+        if (field is GSField && field.model != null) {
+          // Only clear if we created this focus node (it's in our managed list)
+          if (_managedFocusNodes.contains(field.model!.focusNode)) {
+            field.model!.focusNode = null;
+          }
+          // Always clear nextFocusNode as it may reference a managed node
+          field.model!.nextFocusNode = null;
+        }
+      }
+    }
+
     for (final node in _managedFocusNodes) {
       node.dispose();
     }
