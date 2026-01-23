@@ -164,39 +164,33 @@ class _GSFormState extends State<GSForm> {
   void didUpdateWidget(covariant GSForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Re-setup focus nodes if sections changed
+    // This happens when fields are recreated in the parent's build method
     if (oldWidget.sections != widget.sections) {
-      _disposeFocusNodes();
+      // Keep old nodes for disposal after the frame completes
+      final oldNodes = List<FocusNode>.from(_managedFocusNodes);
+      _managedFocusNodes.clear();
+      _focusNodesSetup = false;
       _setupFocusNodes();
+
+      // Dispose old nodes after the frame completes to avoid
+      // "FocusNode used after being disposed" errors from KeyboardActions
+      if (oldNodes.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          for (final node in oldNodes) {
+            node.dispose();
+          }
+        });
+      }
     }
   }
 
   @override
   void dispose() {
-    _disposeFocusNodes();
-    super.dispose();
-  }
-
-  void _disposeFocusNodes() {
-    // Clear focusNode references from field models before disposing
-    // to prevent "FocusNode used after being disposed" errors
-    for (var section in widget.sections) {
-      for (var field in section.fields) {
-        if (field is GSField && field.model != null) {
-          // Only clear if we created this focus node (it's in our managed list)
-          if (_managedFocusNodes.contains(field.model!.focusNode)) {
-            field.model!.focusNode = null;
-          }
-          // Always clear nextFocusNode as it may reference a managed node
-          field.model!.nextFocusNode = null;
-        }
-      }
-    }
-
     for (final node in _managedFocusNodes) {
       node.dispose();
     }
     _managedFocusNodes.clear();
-    _focusNodesSetup = false;
+    super.dispose();
   }
 
   void _setupFocusNodes() {
