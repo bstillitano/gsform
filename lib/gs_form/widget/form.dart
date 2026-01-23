@@ -166,21 +166,11 @@ class _GSFormState extends State<GSForm> {
     // Re-setup focus nodes if sections changed
     // This happens when fields are recreated in the parent's build method
     if (oldWidget.sections != widget.sections) {
-      // Keep old nodes for disposal after the frame completes
-      final oldNodes = List<FocusNode>.from(_managedFocusNodes);
+      // Don't dispose old nodes - they may still be in use by KeyboardActions
+      // Just clear our list and let them be garbage collected
       _managedFocusNodes.clear();
       _focusNodesSetup = false;
       _setupFocusNodes();
-
-      // Dispose old nodes after the frame completes to avoid
-      // "FocusNode used after being disposed" errors from KeyboardActions
-      if (oldNodes.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          for (final node in oldNodes) {
-            node.dispose();
-          }
-        });
-      }
     }
   }
 
