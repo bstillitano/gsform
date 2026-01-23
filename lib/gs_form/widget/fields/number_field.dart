@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
 import 'package:gsform/gs_form/enums/field_status.dart';
-import 'package:gsform/gs_form/enums/filed_type.dart';
 import 'package:gsform/gs_form/model/fields_model/number_model.dart';
-import 'package:gsform/gs_form/widget/form.dart';
 
 class GSNumberField extends StatefulWidget implements GSFieldCallBack {
   final GSNumberModel model;
@@ -90,10 +88,6 @@ class _GSNumberFieldState extends State<GSNumberField> {
     final allowDecimal = widget.model.allowDecimal ?? false;
     final allowNegative = widget.model.allowNegative ?? false;
     final helperText = _buildHelperText();
-
-    // Register focus node with GSFormScope for keyboard actions
-    final formScope = GSFormScope.maybeOf(context);
-    formScope?.registerFocusNode?.call(_effectiveFocusNode, GSFieldTypeEnum.number);
 
     // Build input formatters based on settings
     List<TextInputFormatter> formatters = [];

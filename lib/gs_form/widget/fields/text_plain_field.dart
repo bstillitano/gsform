@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
 import 'package:gsform/gs_form/enums/field_status.dart';
-import 'package:gsform/gs_form/enums/filed_type.dart';
 import 'package:gsform/gs_form/model/fields_model/text_plain_model.dart';
-import 'package:gsform/gs_form/widget/form.dart';
 
 class GSTextPlainField extends StatefulWidget implements GSFieldCallBack {
   final GSTextPlainModel model;
@@ -73,10 +71,6 @@ class _GSTextPlainFieldState extends State<GSTextPlainField> {
   Widget build(BuildContext context) {
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
-
-    // Register focus node with GSFormScope for keyboard actions
-    final formScope = GSFormScope.maybeOf(context);
-    formScope?.registerFocusNode?.call(_effectiveFocusNode, GSFieldTypeEnum.textPlain);
 
     return TextField(
       readOnly: widget.model.enableReadOnly ?? false,
