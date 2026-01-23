@@ -128,56 +128,72 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
               },
             ),
           ),
-        SizedBox(
-          height: widget.model.height,
-          child: RawScrollbar(
-            thumbColor:
-                widget.model.scrollBarColor ?? theme.colorScheme.primary,
-            trackRadius: const Radius.circular(6),
-            radius: const Radius.circular(6),
-            interactive: true,
-            controller: widget.controller,
-            trackVisibility: true,
-            thumbVisibility: true,
-            thickness: widget.model.showScrollBar ?? false ? 6 : 0,
-            child: ListView.builder(
-              controller: widget.controller,
-              itemCount: widget.filteredItems.length,
-              shrinkWrap: widget.model.scrollable == null
-                  ? false
-                  : !widget.model.scrollable!,
-              physics: !widget.model.scrollable!
-                  ? const NeverScrollableScrollPhysics()
-                  : const BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-                final item = widget.filteredItems[index];
-                final checkboxTile = CheckboxListTile(
-                  title: Text(item.title),
-                  value: item.isSelected,
-                  onChanged: (value) {
-                    item.isSelected = value ?? false;
-                    if (item.isSelected) {
-                      widget.valueObject.add(item);
-                    } else {
-                      widget.valueObject
-                          .removeWhere((element) => element.data == item.data);
-                    }
-                    widget.model.callBack(item);
-                    setState(() {});
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                );
-                // Use IgnorePointer to prevent interaction while maintaining normal appearance
-                if (widget.model.enableReadOnly == true) {
-                  return IgnorePointer(child: checkboxTile);
-                }
-                return checkboxTile;
-              },
-            ),
-          ),
-        ),
+        // Use ConstrainedBox with maxHeight when height is specified,
+        // otherwise let the content size naturally with shrinkWrap
+        _buildCheckboxList(theme),
       ],
     );
+  }
+
+  Widget _buildCheckboxList(ThemeData theme) {
+    // When height is specified, use ConstrainedBox with maxHeight
+    // When no height, let content size naturally with shrinkWrap
+    final useConstrainedHeight = widget.model.height != null;
+    final listView = ListView.builder(
+      controller: widget.controller,
+      itemCount: widget.filteredItems.length,
+      // Use shrinkWrap when no height constraint or when scrollable is explicitly false
+      shrinkWrap: !useConstrainedHeight || !(widget.model.scrollable ?? false),
+      physics: (widget.model.scrollable ?? false)
+          ? const BouncingScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) {
+        final item = widget.filteredItems[index];
+        final checkboxTile = CheckboxListTile(
+          title: Text(item.title),
+          value: item.isSelected,
+          onChanged: (value) {
+            item.isSelected = value ?? false;
+            if (item.isSelected) {
+              widget.valueObject.add(item);
+            } else {
+              widget.valueObject
+                  .removeWhere((element) => element.data == item.data);
+            }
+            widget.model.callBack(item);
+            setState(() {});
+          },
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+        );
+        // Use IgnorePointer to prevent interaction while maintaining normal appearance
+        if (widget.model.enableReadOnly == true) {
+          return IgnorePointer(child: checkboxTile);
+        }
+        return checkboxTile;
+      },
+    );
+
+    // Wrap with scrollbar if needed
+    final scrollbarWidget = RawScrollbar(
+      thumbColor: widget.model.scrollBarColor ?? theme.colorScheme.primary,
+      trackRadius: const Radius.circular(6),
+      radius: const Radius.circular(6),
+      interactive: true,
+      controller: widget.controller,
+      trackVisibility: true,
+      thumbVisibility: true,
+      thickness: widget.model.showScrollBar ?? false ? 6 : 0,
+      child: listView,
+    );
+
+    if (useConstrainedHeight) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: widget.model.height!),
+        child: scrollbarWidget,
+      );
+    }
+
+    return scrollbarWidget;
   }
 }

@@ -104,12 +104,18 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
               },
             ),
           ),
-        SizedBox(
-          height: widget.model.height,
-          child: isHorizontal
-              ? _buildHorizontalList(theme)
-              : _buildVerticalList(theme),
-        ),
+        // Use ConstrainedBox with maxHeight when height is specified,
+        // otherwise let the content size naturally with shrinkWrap
+        widget.model.height != null
+            ? ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: widget.model.height!),
+                child: isHorizontal
+                    ? _buildHorizontalList(theme)
+                    : _buildVerticalList(theme),
+              )
+            : (isHorizontal
+                ? _buildHorizontalList(theme)
+                : _buildVerticalList(theme)),
         if (isError)
           Padding(
             padding: const EdgeInsets.only(left: 12.0, top: 8.0),
@@ -125,16 +131,17 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
   }
 
   Widget _buildHorizontalList(ThemeData theme) {
+    // Use shrinkWrap when no height constraint or when scrollable is explicitly false
+    final useConstrainedHeight = widget.model.height != null;
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       controller: controller,
       itemCount: widget.filteredItems.length,
-      shrinkWrap: widget.model.scrollable == null
-          ? false
-          : !widget.model.scrollable!,
-      physics: !widget.model.scrollable!
-          ? const NeverScrollableScrollPhysics()
-          : const BouncingScrollPhysics(),
+      // Use shrinkWrap when no height constraint or when scrollable is explicitly false
+      shrinkWrap: !useConstrainedHeight || !(widget.model.scrollable ?? false),
+      physics: (widget.model.scrollable ?? false)
+          ? const BouncingScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         final item = widget.filteredItems[index];
         final isSelected = widget.returnedData == item;
@@ -190,6 +197,8 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
   }
 
   Widget _buildVerticalList(ThemeData theme) {
+    // Use shrinkWrap when no height constraint or when scrollable is explicitly false
+    final useConstrainedHeight = widget.model.height != null;
     return RawScrollbar(
       thumbColor: widget.model.scrollBarColor ?? theme.colorScheme.primary,
       trackRadius: const Radius.circular(6),
@@ -203,12 +212,11 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
         scrollDirection: Axis.vertical,
         controller: controller,
         itemCount: widget.filteredItems.length,
-        shrinkWrap: widget.model.scrollable == null
-            ? false
-            : !widget.model.scrollable!,
-        physics: !widget.model.scrollable!
-            ? const NeverScrollableScrollPhysics()
-            : const BouncingScrollPhysics(),
+        // Use shrinkWrap when no height constraint or when scrollable is explicitly false
+        shrinkWrap: !useConstrainedHeight || !(widget.model.scrollable ?? false),
+        physics: (widget.model.scrollable ?? false)
+            ? const BouncingScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           final item = widget.filteredItems[index];
           final radioListTile = RadioListTile<RadioDataModel>(
