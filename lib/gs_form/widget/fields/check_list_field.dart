@@ -136,45 +136,52 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
   }
 
   Widget _buildCheckboxList(ThemeData theme) {
-    // When height is specified, use ConstrainedBox with maxHeight
-    // When no height, let content size naturally with shrinkWrap
     final useConstrainedHeight = widget.model.height != null;
+    final isScrollable = widget.model.scrollable ?? false;
+
+    Widget buildItem(CheckDataModel item) {
+      final checkboxTile = CheckboxListTile(
+        title: Text(item.title),
+        value: item.isSelected,
+        onChanged: (value) {
+          item.isSelected = value ?? false;
+          if (item.isSelected) {
+            widget.valueObject.add(item);
+          } else {
+            widget.valueObject
+                .removeWhere((element) => element.data == item.data);
+          }
+          widget.model.callBack(item);
+          setState(() {});
+        },
+        controlAffinity: ListTileControlAffinity.leading,
+        contentPadding: EdgeInsets.zero,
+      );
+      if (widget.model.enableReadOnly == true) {
+        return IgnorePointer(child: checkboxTile);
+      }
+      return checkboxTile;
+    }
+
+    // When no height constraint and not scrollable, use Column for natural sizing
+    if (!useConstrainedHeight && !isScrollable) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: widget.filteredItems.map(buildItem).toList(),
+      );
+    }
+
+    // Otherwise use ListView with scrollbar
     final listView = ListView.builder(
       controller: widget.controller,
       itemCount: widget.filteredItems.length,
-      // Use shrinkWrap when no height constraint or when scrollable is explicitly false
-      shrinkWrap: !useConstrainedHeight || !(widget.model.scrollable ?? false),
-      physics: (widget.model.scrollable ?? false)
+      shrinkWrap: true,
+      physics: isScrollable
           ? const BouncingScrollPhysics()
           : const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        final item = widget.filteredItems[index];
-        final checkboxTile = CheckboxListTile(
-          title: Text(item.title),
-          value: item.isSelected,
-          onChanged: (value) {
-            item.isSelected = value ?? false;
-            if (item.isSelected) {
-              widget.valueObject.add(item);
-            } else {
-              widget.valueObject
-                  .removeWhere((element) => element.data == item.data);
-            }
-            widget.model.callBack(item);
-            setState(() {});
-          },
-          controlAffinity: ListTileControlAffinity.leading,
-          contentPadding: EdgeInsets.zero,
-        );
-        // Use IgnorePointer to prevent interaction while maintaining normal appearance
-        if (widget.model.enableReadOnly == true) {
-          return IgnorePointer(child: checkboxTile);
-        }
-        return checkboxTile;
-      },
+      itemBuilder: (context, index) => buildItem(widget.filteredItems[index]),
     );
 
-    // Wrap with scrollbar if needed
     final scrollbarWidget = RawScrollbar(
       thumbColor: widget.model.scrollBarColor ?? theme.colorScheme.primary,
       trackRadius: const Radius.circular(6),

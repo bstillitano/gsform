@@ -197,8 +197,41 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
   }
 
   Widget _buildVerticalList(ThemeData theme) {
-    // Use shrinkWrap when no height constraint or when scrollable is explicitly false
     final useConstrainedHeight = widget.model.height != null;
+    final isScrollable = widget.model.scrollable ?? false;
+
+    Widget buildItem(RadioDataModel item) {
+      final radioListTile = RadioListTile<RadioDataModel>(
+        title: Text(item.title),
+        value: item,
+        groupValue: widget.returnedData,
+        onChanged: (value) {
+          for (var element in widget.filteredItems) {
+            element.isSelected = false;
+          }
+          item.isSelected = true;
+          widget.model.callBack(item);
+          widget.returnedData = item;
+          setState(() {});
+        },
+        controlAffinity: ListTileControlAffinity.leading,
+        contentPadding: EdgeInsets.zero,
+      );
+      if (widget.model.enableReadOnly == true) {
+        return IgnorePointer(child: radioListTile);
+      }
+      return radioListTile;
+    }
+
+    // When no height constraint and not scrollable, use Column for natural sizing
+    if (!useConstrainedHeight && !isScrollable) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: widget.filteredItems.map(buildItem).toList(),
+      );
+    }
+
+    // Otherwise use ListView with scrollbar
     return RawScrollbar(
       thumbColor: widget.model.scrollBarColor ?? theme.colorScheme.primary,
       trackRadius: const Radius.circular(6),
@@ -212,35 +245,11 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
         scrollDirection: Axis.vertical,
         controller: controller,
         itemCount: widget.filteredItems.length,
-        // Use shrinkWrap when no height constraint or when scrollable is explicitly false
-        shrinkWrap: !useConstrainedHeight || !(widget.model.scrollable ?? false),
-        physics: (widget.model.scrollable ?? false)
+        shrinkWrap: true,
+        physics: isScrollable
             ? const BouncingScrollPhysics()
             : const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) {
-          final item = widget.filteredItems[index];
-          final radioListTile = RadioListTile<RadioDataModel>(
-            title: Text(item.title),
-            value: item,
-            groupValue: widget.returnedData,
-            onChanged: (value) {
-              for (var element in widget.filteredItems) {
-                element.isSelected = false;
-              }
-              item.isSelected = true;
-              widget.model.callBack(item);
-              widget.returnedData = item;
-              setState(() {});
-            },
-            controlAffinity: ListTileControlAffinity.leading,
-            contentPadding: EdgeInsets.zero,
-          );
-          // Use IgnorePointer to prevent interaction while maintaining normal appearance
-          if (widget.model.enableReadOnly == true) {
-            return IgnorePointer(child: radioListTile);
-          }
-          return radioListTile;
-        },
+        itemBuilder: (context, index) => buildItem(widget.filteredItems[index]),
       ),
     );
   }
