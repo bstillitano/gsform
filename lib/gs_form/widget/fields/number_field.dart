@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
 import 'package:gsform/gs_form/enums/field_status.dart';
+import 'package:gsform/gs_form/enums/filed_type.dart';
 import 'package:gsform/gs_form/model/fields_model/number_model.dart';
+import 'package:gsform/gs_form/widget/form.dart';
 
 class GSNumberField extends StatefulWidget implements GSFieldCallBack {
   final GSNumberModel model;
@@ -48,6 +50,12 @@ class GSNumberField extends StatefulWidget implements GSFieldCallBack {
 }
 
 class _GSNumberFieldState extends State<GSNumberField> {
+  FocusNode? _ownedFocusNode;
+
+  FocusNode get _effectiveFocusNode {
+    return widget.model.focusNode ?? (_ownedFocusNode ??= FocusNode());
+  }
+
   @override
   void initState() {
     widget.controller ??= TextEditingController();
@@ -69,6 +77,12 @@ class _GSNumberFieldState extends State<GSNumberField> {
   }
 
   @override
+  void dispose() {
+    _ownedFocusNode?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isError = widget.model.status == GSFieldStatusEnum.error;
@@ -76,6 +90,10 @@ class _GSNumberFieldState extends State<GSNumberField> {
     final allowDecimal = widget.model.allowDecimal ?? false;
     final allowNegative = widget.model.allowNegative ?? false;
     final helperText = _buildHelperText();
+
+    // Register focus node with GSFormScope for keyboard actions
+    final formScope = GSFormScope.maybeOf(context);
+    formScope?.registerFocusNode?.call(_effectiveFocusNode, GSFieldTypeEnum.number);
 
     // Build input formatters based on settings
     List<TextInputFormatter> formatters = [];
@@ -103,7 +121,7 @@ class _GSNumberFieldState extends State<GSNumberField> {
             signed: allowNegative,
           ),
           inputFormatters: formatters,
-          focusNode: widget.model.focusNode,
+          focusNode: _effectiveFocusNode,
           textInputAction: widget.model.nextFocusNode != null
               ? TextInputAction.next
               : TextInputAction.done,

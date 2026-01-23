@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gsform/gs_form/core/field_callback.dart';
 import 'package:gsform/gs_form/enums/field_status.dart';
+import 'package:gsform/gs_form/enums/filed_type.dart';
 import 'package:gsform/gs_form/model/fields_model/text_filed_model.dart';
+import 'package:gsform/gs_form/widget/form.dart';
 
 class GSTextField extends StatefulWidget implements GSFieldCallBack {
   final GSTextModel model;
@@ -35,6 +37,12 @@ class GSTextField extends StatefulWidget implements GSFieldCallBack {
 }
 
 class _GSTextFieldState extends State<GSTextField> {
+  FocusNode? _ownedFocusNode;
+
+  FocusNode get _effectiveFocusNode {
+    return widget.model.focusNode ?? (_ownedFocusNode ??= FocusNode());
+  }
+
   @override
   void initState() {
     widget.controller ??= TextEditingController();
@@ -56,17 +64,27 @@ class _GSTextFieldState extends State<GSTextField> {
   }
 
   @override
+  void dispose() {
+    _ownedFocusNode?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isError = widget.model.status == GSFieldStatusEnum.error;
     final isRequired = widget.model.required ?? false;
     final defaultErrorMessage = isRequired ? '${widget.model.title ?? 'This field'} is required' : null;
+
+    // Register focus node with GSFormScope for keyboard actions
+    final formScope = GSFormScope.maybeOf(context);
+    formScope?.registerFocusNode?.call(_effectiveFocusNode, GSFieldTypeEnum.text);
 
     return TextField(
       readOnly: widget.model.enableReadOnly ?? false,
       controller: widget.controller,
       maxLength: widget.model.maxLength,
       keyboardType: TextInputType.text,
-      focusNode: widget.model.focusNode,
+      focusNode: _effectiveFocusNode,
       textInputAction: widget.model.nextFocusNode != null
           ? TextInputAction.next
           : TextInputAction.done,
