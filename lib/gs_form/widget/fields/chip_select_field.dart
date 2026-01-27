@@ -67,8 +67,6 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
   }
 
   void _onChipTapped(ChipSelectItem item) {
-    if (widget.model.enableReadOnly == true) return;
-
     setState(() {
       if (widget.model.multiSelect) {
         item.isSelected = !item.isSelected;
@@ -115,9 +113,7 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
       children: [
         // Tappable search field with floating label
         GestureDetector(
-          onTap: widget.model.enableReadOnly == true
-              ? null
-              : () => _openFullScreenSearch(context),
+          onTap: () => _openFullScreenSearch(context),
           child: AbsorbPointer(
             child: TextField(
               decoration: InputDecoration(
@@ -149,9 +145,7 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
               FilterChip(
                 label: Text(item.label),
                 selected: true,
-                onSelected: widget.model.enableReadOnly == true
-                    ? null
-                    : (_) => _deselectItem(item),
+                onSelected: (_) => _deselectItem(item),
                 selectedColor: theme.colorScheme.primaryContainer,
                 checkmarkColor: theme.colorScheme.primary,
                 labelStyle: TextStyle(
@@ -186,8 +180,6 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
   }
 
   void _deselectItem(ChipSelectItem item) {
-    if (widget.model.enableReadOnly == true) return;
-
     setState(() {
       item.isSelected = false;
       _updateSelectedItems();
@@ -204,9 +196,7 @@ class _GSChipSelectFieldState extends State<GSChipSelectField> {
         child: FilterChip(
           label: Text(item.label),
           selected: item.isSelected,
-          onSelected: widget.model.enableReadOnly == true
-              ? null
-              : (_) => _onChipTapped(item),
+          onSelected: (_) => _onChipTapped(item),
           selectedColor: theme.colorScheme.primaryContainer,
           checkmarkColor: theme.colorScheme.primary,
           labelStyle: TextStyle(

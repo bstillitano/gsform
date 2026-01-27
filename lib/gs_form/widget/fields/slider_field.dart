@@ -136,23 +136,13 @@ class _GSSliderFieldState extends State<GSSliderField> {
         Row(
           children: [
             Expanded(
-              child: widget.model.enableReadOnly == true
-                  ? IgnorePointer(
-                      child: Slider(
-                        value: _value,
-                        min: _min,
-                        max: _max,
-                        divisions: _divisions > 0 ? _divisions : null,
-                        onChanged: _onSliderChanged,
-                      ),
-                    )
-                  : Slider(
-                      value: _value,
-                      min: _min,
-                      max: _max,
-                      divisions: _divisions > 0 ? _divisions : null,
-                      onChanged: _onSliderChanged,
-                    ),
+              child: Slider(
+                value: _value,
+                min: _min,
+                max: _max,
+                divisions: _divisions > 0 ? _divisions : null,
+                onChanged: _onSliderChanged,
+              ),
             ),
             if (showValueField)
               SizedBox(
@@ -175,7 +165,6 @@ class _GSSliderFieldState extends State<GSSliderField> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  enabled: widget.model.enableReadOnly != true,
                   onSubmitted: (value) {
                     _onTextFieldSubmitted(value);
                     if (widget.model.nextFocusNode != null) {

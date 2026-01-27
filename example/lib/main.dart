@@ -189,6 +189,17 @@ class MainTestPage extends StatelessWidget {
                 icon: const Icon(Icons.article),
                 label: const Text('Single-Section Form'),
               ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ReadOnlyDemo()),
+                  );
+                },
+                icon: const Icon(Icons.lock),
+                label: const Text('ReadOnly Demo'),
+              ),
               const SizedBox(height: 32),
               Card(
                 child: Padding(
@@ -984,6 +995,223 @@ class _MultiSectionFormState extends State<MultiSectionForm> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReadOnlyDemo extends StatefulWidget {
+  const ReadOnlyDemo({super.key});
+
+  @override
+  State<ReadOnlyDemo> createState() => _ReadOnlyDemoState();
+}
+
+class _ReadOnlyDemoState extends State<ReadOnlyDemo> {
+  bool _isReadOnly = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ReadOnly Demo'),
+        actions: [
+          Row(
+            children: [
+              Text(_isReadOnly ? 'Read Only' : 'Editable'),
+              Switch(
+                value: _isReadOnly,
+                onChanged: (value) {
+                  setState(() {
+                    _isReadOnly = value;
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: GSForm.multiSection(
+        context,
+        padding: const EdgeInsets.all(16),
+        sections: [
+          GSSection(
+            sectionTitle: 'Text Fields',
+            fields: [
+              GSField.text(
+                tag: 'text',
+                title: 'Text Field',
+                value: 'Sample text value',
+                readOnly: _isReadOnly,
+              ),
+              GSField.email(
+                tag: 'email',
+                title: 'Email Field',
+                value: 'test@example.com',
+                readOnly: _isReadOnly,
+              ),
+              GSField.number(
+                tag: 'number',
+                title: 'Number Field',
+                value: '42',
+                readOnly: _isReadOnly,
+              ),
+              GSField.textPlain(
+                tag: 'textplain',
+                title: 'Text Plain (Multiline)',
+                value: 'This is a multiline\ntext value',
+                readOnly: _isReadOnly,
+              ),
+            ],
+          ),
+          GSSection(
+            sectionTitle: 'Selection Fields',
+            fields: [
+              GSField.spinner(
+                tag: 'spinner',
+                title: 'Spinner',
+                readOnly: _isReadOnly,
+                items: [
+                  SpinnerDataModel(name: 'Option 1', id: 1, isSelected: true),
+                  SpinnerDataModel(name: 'Option 2', id: 2),
+                  SpinnerDataModel(name: 'Option 3', id: 3),
+                ],
+              ),
+              GSField.radioGroup(
+                tag: 'radio',
+                title: 'Radio Group',
+                searchable: false,
+                readOnly: _isReadOnly,
+                items: [
+                  RadioDataModel(title: 'Choice A', isSelected: true),
+                  RadioDataModel(title: 'Choice B', isSelected: false),
+                  RadioDataModel(title: 'Choice C', isSelected: false),
+                ],
+                callBack: (data) {},
+              ),
+              GSField.checkList(
+                tag: 'checklist',
+                title: 'Checkbox List',
+                searchable: false,
+                readOnly: _isReadOnly,
+                items: [
+                  CheckDataModel(title: 'Item 1', isSelected: true),
+                  CheckDataModel(title: 'Item 2', isSelected: true),
+                  CheckDataModel(title: 'Item 3', isSelected: false),
+                ],
+                callBack: (data) {},
+              ),
+            ],
+          ),
+          GSSection(
+            sectionTitle: 'Date & Time',
+            fields: [
+              GSField.datePicker(
+                tag: 'date',
+                title: 'Date Picker',
+                calendarType: GSCalendarType.gregorian,
+                readOnly: _isReadOnly,
+              ),
+              GSField.time(
+                tag: 'time',
+                title: 'Time Picker',
+                readOnly: _isReadOnly,
+              ),
+            ],
+          ),
+          GSSection(
+            sectionTitle: 'Interactive Controls',
+            fields: [
+              GSField.switchField(
+                tag: 'switch',
+                title: 'Switch Field',
+                value: true,
+                readOnly: _isReadOnly,
+              ),
+              GSField.stepper(
+                tag: 'stepper',
+                title: 'Stepper',
+                value: 5,
+                minValue: 0,
+                maxValue: 10,
+                readOnly: _isReadOnly,
+              ),
+              GSField.starRating(
+                tag: 'rating',
+                title: 'Star Rating',
+                value: 3,
+                readOnly: _isReadOnly,
+              ),
+              GSField.slider(
+                tag: 'slider',
+                title: 'Slider',
+                initialValue: 50,
+                minValue: 0,
+                maxValue: 100,
+                showValueField: true,
+                readOnly: _isReadOnly,
+              ),
+            ],
+          ),
+          GSSection(
+            sectionTitle: 'Button & Chip Selection',
+            fields: [
+              GSField.buttonGroup(
+                tag: 'buttongroup',
+                title: 'Button Group',
+                value: 'Yes',
+                readOnly: _isReadOnly,
+                items: [
+                  ButtonGroupItem(label: 'Yes'),
+                  ButtonGroupItem(label: 'No'),
+                  ButtonGroupItem(label: 'Maybe'),
+                ],
+              ),
+              GSField.chipSelect(
+                tag: 'chips',
+                title: 'Chip Select',
+                multiSelect: true,
+                readOnly: _isReadOnly,
+                items: [
+                  ChipSelectItem(label: 'Tag 1', isSelected: true),
+                  ChipSelectItem(label: 'Tag 2', isSelected: true),
+                  ChipSelectItem(label: 'Tag 3'),
+                  ChipSelectItem(label: 'Tag 4'),
+                ],
+              ),
+            ],
+          ),
+          GSSection(
+            sectionTitle: 'Signature',
+            fields: [
+              GSField.signature(
+                tag: 'signature',
+                title: 'Signature Field',
+                height: 120,
+                showClearButton: true,
+                readOnly: _isReadOnly,
+              ),
+            ],
+          ),
+          GSSection(
+            sectionTitle: 'Matrix',
+            fields: [
+              GSField.matrix(
+                tag: 'matrix',
+                title: 'Risk Matrix',
+                readOnly: _isReadOnly,
+                selectedXId: 2,
+                selectedYId: 2,
+                matrixCells: [
+                  {'xid': 1, 'yid': 1, 'xyId': 101, 'x': 'Low', 'y': 'Rare', 'xyName': 'Low', 'xyColor': '#42994b', 'xy': '1'},
+                  {'xid': 1, 'yid': 2, 'xyId': 102, 'x': 'Low', 'y': 'Likely', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '2'},
+                  {'xid': 2, 'yid': 1, 'xyId': 201, 'x': 'High', 'y': 'Rare', 'xyName': 'Medium', 'xyColor': '#fff875', 'xy': '2'},
+                  {'xid': 2, 'yid': 2, 'xyId': 202, 'x': 'High', 'y': 'Likely', 'xyName': 'High', 'xyColor': '#ee3300', 'xy': '4'},
+                ],
+              ),
+            ],
           ),
         ],
       ),

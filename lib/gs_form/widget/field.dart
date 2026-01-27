@@ -779,6 +779,7 @@ class GSField extends StatefulWidget {
     String? value,
     int? weight,
     String? hint,
+    bool? readOnly,
   }) {
     model = GSBankCardModel(
       type: GSFieldTypeEnum.bankCard,
@@ -793,6 +794,7 @@ class GSField extends StatefulWidget {
       value: value,
       weight: weight,
       hint: hint,
+      enableReadOnly: readOnly,
     );
   }
 
@@ -1118,6 +1120,7 @@ class GSField extends StatefulWidget {
     GSFieldStatusEnum? status,
     bool? value,
     int? weight,
+    bool? readOnly,
     Function(bool)? onChanged,
   }) {
     model = GSSwitchModel(
@@ -1131,6 +1134,7 @@ class GSField extends StatefulWidget {
       status: status,
       value: value ?? false,
       weight: weight,
+      enableReadOnly: readOnly,
       onChange: onChanged,
     );
     onSwitchChange = onChanged;
@@ -1170,13 +1174,28 @@ class _GSFieldState extends State<GSField> {
       }
     };
 
-    return AbsorbPointer(
-      absorbing: widget.model?.status == GSFieldStatusEnum.disabled,
-      child: Opacity(
-        opacity: widget.model?.status == GSFieldStatusEnum.disabled ? 0.5 : 1.0,
-        child: widget.child ?? const SizedBox.shrink(),
-      ),
-    );
+    final isDisabled = widget.model?.status == GSFieldStatusEnum.disabled;
+    final isReadOnly = widget.model?.enableReadOnly ?? false;
+
+    Widget child = widget.child ?? const SizedBox.shrink();
+
+    // ReadOnly: block all interaction but maintain visual appearance
+    if (isReadOnly) {
+      child = IgnorePointer(child: child);
+    }
+
+    // Disabled: block interaction and show reduced opacity
+    if (isDisabled) {
+      child = AbsorbPointer(
+        absorbing: true,
+        child: Opacity(
+          opacity: 0.5,
+          child: child,
+        ),
+      );
+    }
+
+    return child;
   }
 
   void _fillChild() {

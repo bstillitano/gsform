@@ -34,7 +34,6 @@ class _GSSwitchFieldState extends State<GSSwitchField> {
   @override
   Widget build(BuildContext context) {
     final isError = widget.model.status == GSFieldStatusEnum.error;
-    final isReadOnly = widget.model.enableReadOnly ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,14 +54,12 @@ class _GSSwitchFieldState extends State<GSSwitchField> {
             ),
             Switch(
               value: widget.currentValue,
-              onChanged: isReadOnly
-                  ? null
-                  : (value) {
-                      setState(() {
-                        widget.currentValue = value;
-                      });
-                      widget.model.onChange?.call(value);
-                    },
+              onChanged: (value) {
+                setState(() {
+                  widget.currentValue = value;
+                });
+                widget.model.onChange?.call(value);
+              },
             ),
             if (widget.model.postfixWidget != null) ...[
               const SizedBox(width: 8),

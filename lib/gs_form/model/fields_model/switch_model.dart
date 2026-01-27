@@ -20,6 +20,7 @@ class GSSwitchModel extends GSFieldModel {
     weight,
     onTap,
     showTitle,
+    enableReadOnly,
     this.onChange,
   }) : super(
           type: type,
@@ -35,5 +36,6 @@ class GSSwitchModel extends GSFieldModel {
           validateRegEx: validateRegEx,
           weight: weight,
           showTitle: showTitle,
+          enableReadOnly: enableReadOnly,
         );
 }
