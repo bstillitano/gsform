@@ -153,25 +153,35 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
   }
 
   void _initialGregorianAvailableFromDate() {
-    if (widget.model.isPastAvailable ?? false) {
-      if (widget.model.availableFrom != null) {
-        widget.gregorianAvailableFrom = DateTime(
-          widget.model.availableFrom!.year,
-          widget.model.availableFrom!.month,
-          widget.model.availableFrom!.day,
-        );
-      } else {
-        widget.gregorianAvailableFrom = DateTime(1700, 1, 1);
-      }
+    // Always use availableFrom if provided
+    if (widget.model.availableFrom != null) {
+      widget.gregorianAvailableFrom = DateTime(
+        widget.model.availableFrom!.year,
+        widget.model.availableFrom!.month,
+        widget.model.availableFrom!.day,
+      );
+    } else if (widget.model.isPastAvailable ?? false) {
+      // Past dates allowed, no minimum specified - use very old date
+      widget.gregorianAvailableFrom = DateTime(1700, 1, 1);
     } else {
-      widget.gregorianAvailableFrom = widget.gregorianInitialDate;
+      // Past dates not allowed, no minimum specified - use today
+      widget.gregorianAvailableFrom = DateTime.now();
     }
   }
 
   Future<void> _openGregorianPicker() async {
+    // Clamp initialDate to be within valid range to avoid assertion errors
+    DateTime clampedInitialDate = widget.gregorianInitialDate;
+    if (clampedInitialDate.isBefore(widget.gregorianAvailableFrom)) {
+      clampedInitialDate = widget.gregorianAvailableFrom;
+    }
+    if (clampedInitialDate.isAfter(widget.gregorianAvailableTo)) {
+      clampedInitialDate = widget.gregorianAvailableTo;
+    }
+
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: widget.gregorianInitialDate,
+      initialDate: clampedInitialDate,
       firstDate: widget.gregorianAvailableFrom,
       lastDate: widget.gregorianAvailableTo,
     );

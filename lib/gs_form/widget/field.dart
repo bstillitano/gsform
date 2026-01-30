@@ -608,7 +608,7 @@ class GSField extends StatefulWidget {
       isPastAvailable: isPastAvailable,
       dateFormatType: displayDateType,
       initialDate: initialDate,
-      availableFrom: availableTo,
+      availableFrom: availableFrom,
       availableTo: availableTo,
       enableReadOnly: readOnly,
     );
@@ -656,7 +656,7 @@ class GSField extends StatefulWidget {
       dateFormatType: displayDateType,
       initialStartDate: initialStartDate,
       initialEndDate: initialEndDate,
-      availableFrom: availableTo,
+      availableFrom: availableFrom,
       availableTo: availableTo,
       calendarType: calendarType,
       enableReadOnly: readOnly,
