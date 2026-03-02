@@ -47,6 +47,8 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
         }
       }
 
+      debugPrint('[GSSpinner] initState tag=${widget.model.tag} title=${widget.model.title} items=${widget.model.items.length} selectedItem=${widget.returnedData?.name}(id=${widget.returnedData?.id}) isSelectedFlags=${widget.model.items.where((e) => e.isSelected == true).map((e) => "${e.id}:${e.name}").toList()}');
+
       if (widget.returnedData == null) {
         widget.returnedData = widget.model.items[0];
       }
