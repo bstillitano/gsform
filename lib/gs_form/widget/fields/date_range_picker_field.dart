@@ -226,7 +226,7 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
       switch (widget.model.dateFormatType) {
         case GSDateFormatType.numeric:
           widget.selectedDateText =
-              '${widget.model.from}: ${DateFormat.yMd().format(widget.selectedGregorianStartDate!)}   ${widget.model.to}: ${DateFormat.yMd().format(widget.selectedGregorianEndDate!)}';
+              '${widget.model.from}: ${DateFormat('dd/MM/yyyy').format(widget.selectedGregorianStartDate!)}   ${widget.model.to}: ${DateFormat('dd/MM/yyyy').format(widget.selectedGregorianEndDate!)}';
           break;
         case GSDateFormatType.fullText:
           widget.selectedDateText =
@@ -242,12 +242,12 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
           break;
         default:
           widget.selectedDateText =
-              '${widget.model.from}: ${DateFormat.yMd().format(widget.selectedGregorianStartDate!)}   ${widget.model.to}: ${DateFormat.yMd().format(widget.selectedGregorianEndDate!)}';
+              '${widget.model.from}: ${DateFormat('dd/MM/yyyy').format(widget.selectedGregorianStartDate!)}   ${widget.model.to}: ${DateFormat('dd/MM/yyyy').format(widget.selectedGregorianEndDate!)}';
           break;
       }
     } else {
       widget.selectedDateText =
-          '${widget.model.from}: ${DateFormat.yMd().format(widget.selectedGregorianStartDate!)}   ${widget.model.to}: ${DateFormat.yMd().format(widget.selectedGregorianEndDate!)}';
+          '${widget.model.from}: ${DateFormat('dd/MM/yyyy').format(widget.selectedGregorianStartDate!)}   ${widget.model.to}: ${DateFormat('dd/MM/yyyy').format(widget.selectedGregorianEndDate!)}';
     }
   }
 }

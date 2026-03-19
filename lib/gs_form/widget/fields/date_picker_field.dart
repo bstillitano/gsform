@@ -208,7 +208,7 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
       switch (widget.model.dateFormatType) {
         case GSDateFormatType.numeric:
           widget.selectedDateText =
-              DateFormat.yMd().format(widget.selectedGregorianDate!);
+              DateFormat('dd/MM/yyyy').format(widget.selectedGregorianDate!);
           break;
         case GSDateFormatType.fullText:
           widget.selectedDateText =
@@ -224,12 +224,12 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
           break;
         default:
           widget.selectedDateText =
-              DateFormat.yMd().format(widget.selectedGregorianDate!);
+              DateFormat('dd/MM/yyyy').format(widget.selectedGregorianDate!);
           break;
       }
     } else {
       widget.selectedDateText =
-          DateFormat.yMd().format(widget.selectedGregorianDate!);
+          DateFormat('dd/MM/yyyy').format(widget.selectedGregorianDate!);
     }
   }
 }
