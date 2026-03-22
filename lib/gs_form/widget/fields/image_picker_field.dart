@@ -38,10 +38,10 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
   @override
   void initState() {
     super.initState();
-    if (widget.model.value != null) {
+    // Only set from model.value if croppedFilePath wasn't already
+    // set by GSField._fillChild() during widget recycling
+    if (widget.croppedFilePath == null) {
       widget.croppedFilePath = widget.model.value;
-    } else {
-      widget.croppedFilePath = null;
     }
   }
 
@@ -123,6 +123,8 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
                   isReadOnly: isReadOnly,
                   onDeleteImage: () {
                     widget.croppedFilePath = null;
+                    widget.model.value = null;
+                    widget.onChanged?.call(null);
                     setState(() {});
                   },
                 ),
@@ -131,11 +133,10 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
     );
   }
 
-  void _fillImagePath(File image) {
+  Future<void> _fillImagePath(File image) async {
     if (widget.model.showCropper ?? false) {
-      _cropImage(image);
+      await _cropImage(image);
     } else {
-      setState(() {});
       if (widget.model.maximumSizePerImageInBytes != null) {
         if (image.lengthSync() / 1000 <
             widget.model.maximumSizePerImageInBytes!) {
@@ -146,7 +147,10 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
       } else {
         widget.croppedFilePath = image.path;
       }
+      setState(() {});
     }
+    // Update model.value so it survives widget recycling
+    widget.model.value = widget.croppedFilePath;
     widget.onChanged?.call(widget.croppedFilePath);
   }
 
@@ -183,6 +187,7 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
         } else {
           widget.croppedFilePath = image.path;
         }
+        widget.model.value = widget.croppedFilePath;
       });
     }
   }
@@ -267,8 +272,9 @@ class _ImagePickedView extends StatelessWidget {
         (!croppedFilePath.startsWith('/') && !croppedFilePath.startsWith('http') && croppedFilePath.length > 100);
 
     Widget imageWidget;
+    Widget errorFallback = const Center(child: Icon(Icons.broken_image, size: 40));
     if (isUrl) {
-      imageWidget = Image.network(croppedFilePath, fit: BoxFit.contain);
+      imageWidget = Image.network(croppedFilePath, fit: BoxFit.contain, errorBuilder: (_, __, ___) => errorFallback);
     } else if (isBase64) {
       // Handle base64 data URL or raw base64 string
       try {
@@ -276,24 +282,20 @@ class _ImagePickedView extends StatelessWidget {
             ? croppedFilePath.split(',').last
             : croppedFilePath;
         final bytes = base64Decode(base64String);
-        imageWidget = Image.memory(bytes, fit: BoxFit.contain);
+        imageWidget = Image.memory(bytes, fit: BoxFit.contain, errorBuilder: (_, __, ___) => errorFallback);
       } catch (e) {
-        imageWidget = const Icon(Icons.broken_image);
+        imageWidget = errorFallback;
       }
     } else {
-      imageWidget = Image.file(File(croppedFilePath), fit: BoxFit.contain);
+      imageWidget = Image.file(File(croppedFilePath), fit: BoxFit.contain, errorBuilder: (_, __, ___) => errorFallback);
     }
 
     return SizedBox(
       height: 140,
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(child: imageWidget),
-            ],
-          ),
+          imageWidget,
           if (!isReadOnly)
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
