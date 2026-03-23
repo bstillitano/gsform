@@ -274,7 +274,8 @@ class _ImagePickedView extends StatelessWidget {
     Widget imageWidget;
     Widget errorFallback = const Center(child: Icon(Icons.broken_image, size: 40));
     if (isUrl) {
-      imageWidget = Image.network(croppedFilePath, fit: BoxFit.contain, errorBuilder: (_, __, ___) => errorFallback);
+      imageWidget = Image.network(croppedFilePath, fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => errorFallback);
     } else if (isBase64) {
       // Handle base64 data URL or raw base64 string
       try {
@@ -282,12 +283,14 @@ class _ImagePickedView extends StatelessWidget {
             ? croppedFilePath.split(',').last
             : croppedFilePath;
         final bytes = base64Decode(base64String);
-        imageWidget = Image.memory(bytes, fit: BoxFit.contain, errorBuilder: (_, __, ___) => errorFallback);
+        imageWidget = Image.memory(bytes, fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => errorFallback);
       } catch (e) {
         imageWidget = errorFallback;
       }
     } else {
-      imageWidget = Image.file(File(croppedFilePath), fit: BoxFit.contain, errorBuilder: (_, __, ___) => errorFallback);
+      imageWidget = Image.file(File(croppedFilePath), fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => errorFallback);
     }
 
     return SizedBox(
